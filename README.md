@@ -38,8 +38,8 @@ You can easily grow your tree using context-aware actions.
 - **Adding Siblings**: Click `+ Sibling` to add a brother or sister next to the selected person.
 - **Adding Spouses**: Click `+ Spouse` to create a marriage connection using a custom "Marriage Node" (red line) that visually links partners.
 
-![Node Actions](./screenshots/node_actions.png)
-*(Screenshot showing the action buttons on a person node)*
+<!-- ![Node Actions](./screenshots/node_actions.png) -->
+<!-- *(Screenshot showing the action buttons on a person node)* -->
 
 ### 3. Editing Profiles
 Clicking the "Edit" (pencil) icon on any person opens the **Edit Modal**.
@@ -47,8 +47,8 @@ Clicking the "Edit" (pencil) icon on any person opens the **Edit Modal**.
 - **Photos**: Upload personal photos that appear directly on the tree node.
 - **Delete**: Remove a person and their direct connections.
 
-![Edit Modal](./screenshots/edit_modal.png)
-*(Screenshot of the Edit Person modal)*
+<!-- ![Edit Modal](./screenshots/edit_modal.png) -->
+<!-- *(Screenshot of the Edit Person modal)* -->
 
 ### 4. AI Import (Experimental)
 The "AI Scan" feature simulates scanning a hand-drawn family tree chart to automatically digitize it.
@@ -56,8 +56,8 @@ The "AI Scan" feature simulates scanning a hand-drawn family tree chart to autom
 - **Scan**: The app simulates an AI analysis process.
 - **Review**: Confirm extracted data before it populates your tree.
 
-![AI Import](./screenshots/import_modal.png)
-*(Screenshot of the AI Import modal)*
+<!-- ![AI Import](./screenshots/import_modal.png) -->
+<!-- *(Screenshot of the AI Import modal)* -->
 
 ### 5. Data Persistence & History
 - **Local Storage**: Your tree is automatically saved to your browser's local storage. You can refresh the page and continue where you left off.

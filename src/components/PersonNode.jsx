@@ -1,6 +1,46 @@
 import React, { memo, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { UserPlus, PlusSquare, Briefcase, Calendar, Edit3 } from 'lucide-react';
+import { UserPlus, PlusSquare, Briefcase, Calendar, Edit3, Trash2, Baby } from 'lucide-react';
+
+const DefaultMaleAvatar = () => (
+  <svg viewBox="0 0 100 100" className="profile-photo default-avatar male-avatar">
+    <defs>
+      <linearGradient id="maleBg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#dbeafe" />
+        <stop offset="100%" stopColor="#93c5fd" />
+      </linearGradient>
+      <linearGradient id="maleUser" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#2563eb" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+    </defs>
+    <rect width="100" height="100" fill="url(#maleBg)" />
+    <circle cx="50" cy="38" r="18" fill="url(#maleUser)" />
+    <path d="M 33 36 C 33 22, 67 22, 67 36 C 63 26, 37 26, 33 36 Z" fill="#1e3a8a" />
+    <path d="M 22 85 C 22 60, 34 54, 50 54 C 66 54, 78 60, 78 85 Z" fill="url(#maleUser)" />
+    <polygon points="50,65 42,54 58,54" fill="#ffffff" opacity="0.4" />
+  </svg>
+);
+
+const DefaultFemaleAvatar = () => (
+  <svg viewBox="0 0 100 100" className="profile-photo default-avatar female-avatar">
+    <defs>
+      <linearGradient id="femaleBg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#fce7f3" />
+        <stop offset="100%" stopColor="#fbcfe8" />
+      </linearGradient>
+      <linearGradient id="femaleUser" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#db2777" />
+        <stop offset="100%" stopColor="#be185d" />
+      </linearGradient>
+    </defs>
+    <rect width="100" height="100" fill="url(#femaleBg)" />
+    <path d="M 30 38 C 30 18, 70 18, 70 38 C 72 58, 66 68, 66 68 L 34 68 C 34 68, 28 58, 30 38 Z" fill="#9d174d" />
+    <circle cx="50" cy="38" r="17" fill="url(#femaleUser)" />
+    <path d="M 32 35 C 36 24, 48 24, 50 30 C 52 24, 64 24, 68 35 C 64 27, 52 27, 50 32 C 48 27, 36 27, 32 35 Z" fill="#831843" />
+    <path d="M 24 85 C 24 60, 35 54, 50 54 C 65 54, 76 60, 76 85 Z" fill="url(#femaleUser)" />
+  </svg>
+);
 
 const PersonNode = ({ id, data, selected }) => {
   const fileInputRef = useRef(null);
@@ -27,8 +67,24 @@ const PersonNode = ({ id, data, selected }) => {
     }
   };
 
+  const formatLifespan = () => {
+    if (data.deathYear) {
+      return `${data.birthYear || ''}${data.birthYear ? ' - ' : ''}${data.deathYear}`;
+    }
+    if (data.isPresent) {
+      return `${data.birthYear || ''}${data.birthYear ? ' - ' : ''}Present`;
+    }
+    if (data.isUnknownBirth || data.birthYear === 'Unknown') {
+      return 'Birth Year Unknown';
+    }
+    if (data.birthYear) {
+      return data.birthYear;
+    }
+    return '';
+  };
+
   return (
-    <div className={`person-node ${selected ? 'selected' : ''} ${data.gender}`}>
+    <div className={`person-node ${selected ? 'selected' : ''} ${data.gender} ${data.isDimmed ? 'dimmed-node' : ''} ${data.isHighlighted ? 'highlighted-gen-node' : ''}`}>
       <div className="node-content glass-panel">
         <input
           type="file"
@@ -41,12 +97,15 @@ const PersonNode = ({ id, data, selected }) => {
         <div className="photo-container" onClick={handlePhotoClick}>
           {data.photo ? (
             <img src={data.photo} alt={data.name} className="profile-photo" />
+          ) : data.gender === 'female' ? (
+            <DefaultFemaleAvatar />
           ) : (
-            <div className="photo-placeholder">
-              <Edit3 size={24} className="pencil-icon" />
-              <span className="upload-hint">Upload Photo</span>
-            </div>
+            <DefaultMaleAvatar />
           )}
+          <div className="photo-hover-overlay">
+            <Edit3 size={16} className="pencil-icon" />
+            <span className="upload-hint">Upload</span>
+          </div>
         </div>
 
         <div className="info" onClick={(e) => {
@@ -57,10 +116,13 @@ const PersonNode = ({ id, data, selected }) => {
           data.onEdit(id);
         }}>
           <h3 className="name">{data.name}</h3>
+          {data.petName && <div className="pet-name">({data.petName})</div>}
           <div className="metadata">
-            <span className="lifespan">
-              {data.birthYear} - {data.deathYear || 'Present'}
-            </span>
+            {formatLifespan() && (
+              <span className="lifespan">
+                {formatLifespan()}
+              </span>
+            )}
             {data.occupation && (
               <span className="occupation">
                 {data.occupation}
@@ -70,178 +132,52 @@ const PersonNode = ({ id, data, selected }) => {
         </div>
 
         {/* Floating Actions on Selection/Hover */}
-        {selected && (
+        <div className="actions-layer">
+          {/* Top Right: Delete Node */}
+          <button
+            className="action-item-delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm('Delete this person?')) data.onDelete(id);
+            }}
+            title="Delete Person"
+          >
+            <Trash2 size={16} />
+          </button>
+
+          {/* Bottom Actions: Sibling & Child */}
           <div className="node-actions glass-panel">
-            <button className="action-item spouse" onClick={(e) => { e.stopPropagation(); data.onAddSpouse(id) }}>
-              <UserPlus size={14} />
-              <span>Spouse</span>
-            </button>
             <button className="action-item sibling" onClick={(e) => { e.stopPropagation(); data.onAddSibling(id) }}>
               <PlusSquare size={14} />
               <span>Sibling</span>
             </button>
+            <div style={{ width: 1, height: 16, background: '#e2e8f0', margin: '0 4px' }} /> {/* Divider */}
             <button className="action-item child" onClick={(e) => { e.stopPropagation(); data.onAddChild(id) }}>
-              <PlusSquare size={14} style={{ transform: 'rotate(90deg)' }} />
+              <Baby size={14} />
               <span>Child</span>
             </button>
           </div>
-        )}
+
+          {/* Right Side Action: Add Spouse */}
+          <div className="spouse-action-wrapper">
+            <button
+              className="action-item-spouse"
+              onClick={(e) => { e.stopPropagation(); data.onAddSpouse(id) }}
+              title="Add Spouse"
+            >
+              <UserPlus size={16} />
+            </button>
+            <span className="spouse-label">Spouse</span>
+          </div>
+        </div>
       </div>
 
       {/* Connection Handles */}
       <Handle type="target" position={Position.Top} id="top" />
       <Handle type="source" position={Position.Bottom} id="bottom" />
-      <Handle type="source" position={Position.Right} id="right" style={{ background: 'var(--rel-marriage)' }} />
-      <Handle type="target" position={Position.Left} id="left" style={{ background: 'var(--rel-marriage)' }} />
+      <Handle type="source" position={Position.Right} id="right" style={{ background: 'var(--rel-marriage)', top: '40px', right: '-5px', transform: 'translateY(-50%)' }} />
+      <Handle type="target" position={Position.Left} id="left" style={{ background: 'var(--rel-marriage)', top: '40px', left: '-5px', transform: 'translateY(-50%)' }} />
 
-      <style jsx>{`
-        .person-node {
-          padding: 8px;
-          min-width: 140px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .node-content {
-          padding: 16px 12px;
-          border-radius: 12px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          position: relative;
-          transition: transform 0.2s ease;
-          border: 3px solid transparent;
-          background: white;
-          text-align: center;
-          box-shadow: var(--shadow-sm);
-        }
-
-        .person-node.male .node-content { 
-          border-color: #2563eb; 
-          background: linear-gradient(135deg, white 0%, #dbeafe 100%);
-        }
-        .person-node.female .node-content { 
-          border-color: #db2777; 
-          background: linear-gradient(135deg, white 0%, #fce7f3 100%);
-        }
-        
-        .person-node.selected .node-content {
-          transform: scale(1.02);
-          box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
-        }
-
-        .photo-container {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          overflow: hidden;
-          background: #f8fafc;
-          cursor: pointer;
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 4px solid white;
-          box-shadow: var(--shadow-sm);
-          position: relative;
-          transition: all 0.2s;
-        }
-
-        .photo-container:hover {
-          transform: scale(1.05);
-          box-shadow: var(--shadow-md);
-        }
-
-        .photo-placeholder {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          color: var(--text-muted);
-        }
-
-        .pencil-icon { color: var(--primary); }
-        .upload-hint { font-size: 10px; font-weight: 600; text-transform: uppercase; }
-
-        .profile-photo {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .info {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          cursor: pointer;
-        }
-
-        .name {
-          font-size: 15px;
-          font-weight: 800;
-          margin: 0;
-          color: var(--text-main);
-        }
-
-        .metadata {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          margin-top: 6px;
-        }
-
-        .lifespan, .occupation {
-          font-size: 11px;
-          color: var(--text-muted);
-          font-weight: 500;
-        }
-
-        .node-actions {
-          position: absolute;
-          bottom: -25px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 12px;
-          background: white;
-          padding: 8px 16px;
-          border-radius: 40px;
-          box-shadow: var(--shadow-lg);
-          z-index: 100;
-          border: 1px solid #e2e8f0;
-        }
-
-        .action-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          border: none;
-          background: transparent;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          padding: 4px 8px;
-          border-radius: 8px;
-        }
-
-        .action-item span {
-          font-size: 10px;
-          font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .action-item:hover { transform: scale(1.1); background: #f8fafc; }
-        .action-item.spouse { color: #ef4444; }
-        .action-item.sibling { color: #10b981; }
-        .action-item.child { color: #3b82f6; }
-
-        .react-flow__handle {
-          width: 10px;
-          height: 10px;
-          border: 2px solid white;
-        }
-      `}</style>
     </div>
   );
 };

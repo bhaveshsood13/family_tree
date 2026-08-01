@@ -1,155 +1,4736 @@
+// Auto-aligned layout with 480px vertical spacing and exact straight edges
 export const initialNodes = [
-    // Generation 1: Pran (M) & Gyanwati (F) - Center at 2250
-    { id: 'pran', type: 'person', position: { x: 2250, y: 0 }, data: { name: 'Pran Nath Sood', gender: 'male', birthYear: '1911' } },
-    { id: 'gyanwati', type: 'person', position: { x: 2600, y: 0 }, data: { name: 'Gyanwati Sood', gender: 'female', birthYear: '1915' } },
-    { id: 'm1', type: 'marriage', position: { x: 2490, y: 101 }, data: {} }, // 2490 to center 30px node slightly better? Center is 2425 (mid of 2250/2600) + 70ish?
-    // Parent Width ~140. Midpoint between 2250 and 2600.
-    // Parent 1 Center: 2250 + 70 = 2320. Parent 2 Center: 2600 + 70 = 2670. Midpoint = 2495.
-    // Marriage Node (30px wide). Pos X should be Midpoint - 15 = 2480.
-    // Let's use 2480 instead of 2490 for perfect X centering.
-
-    // Generation 2 - Spaced by 1500px
-    // Branch 1: Kailash (M) & Saroj (F)
-    { id: 'kailash', type: 'person', position: { x: 0, y: 400 }, data: { name: 'Kailash Nath Kashyap', gender: 'male' } },
-    { id: 'saroj', type: 'person', position: { x: 350, y: 400 }, data: { name: 'Saroj Sood Kashyap', gender: 'female', birthYear: '1937' } },
-    { id: 'm-kashyap', type: 'marriage', position: { x: 230, y: 501 }, data: {} }, // 175 mid - 15 = 160? No.
-    // Node 1: 0..140. Node 2: 350..490.
-    // Center 1: 70. Center 2: 420. Midpoint: 245.
-    // Marriage X: 245 - 15 = 230. Correct.
-
-    // Branch 2: Vinod (M) & Brij (F)
-    { id: 'vinod', type: 'person', position: { x: 1500, y: 400 }, data: { name: 'Vinod Sood Gopal', gender: 'male', birthYear: '1939' } },
-    { id: 'brij', type: 'person', position: { x: 1850, y: 400 }, data: { name: 'Brij Sahish Chandra Gopal', gender: 'female' } },
-    { id: 'm-gopal', type: 'marriage', position: { x: 1730, y: 501 }, data: {} }, // 1500+230
-
-    // Branch 3: Jatinder (M) & Padmavati (F)
-    { id: 'jatinder', type: 'person', position: { x: 3000, y: 400 }, data: { name: 'Jatinder Nath Sood', gender: 'male', birthYear: '1941' } },
-    { id: 'padmavati', type: 'person', position: { x: 3350, y: 400 }, data: { name: 'Padmavati Sood', gender: 'female', birthYear: '1943' } },
-    { id: 'm-jatinder', type: 'marriage', position: { x: 3230, y: 501 }, data: {} },
-
-    // Branch 4: Virendra (M) & Suniti (F)
-    { id: 'virendra', type: 'person', position: { x: 4500, y: 400 }, data: { name: 'Virendra Mohan Sood', gender: 'male', birthYear: '1945' } },
-    { id: 'suniti', type: 'person', position: { x: 4850, y: 400 }, data: { name: 'Suniti Sood', gender: 'female', birthYear: '1949' } },
-    { id: 'm-virendra', type: 'marriage', position: { x: 4730, y: 501 }, data: {} },
-
-    // Generation 3
-    // Branch 1 (Kailash)
-    { id: 'anil', type: 'person', position: { x: -200, y: 800 }, data: { name: 'Anil Kashyap', gender: 'male' } },
-    { id: 'durr', type: 'person', position: { x: 150, y: 800 }, data: { name: 'Durr', gender: 'female' } },
-    { id: 'm-anil', type: 'marriage', position: { x: 30, y: 901 }, data: {} }, // -200..-60(140) center -130. 150..290 center 220. Midpoint (-130+220)/2 = 45. Minus 15 = 30.
-
-    { id: 'mischa', type: 'person', position: { x: 500, y: 800 }, data: { name: 'Mischa', gender: 'male' } },
-    { id: 'ritu', type: 'person', position: { x: 850, y: 800 }, data: { name: 'Ritu Kashyap', gender: 'female' } },
-    { id: 'm-ritu', type: 'marriage', position: { x: 730, y: 901 }, data: {} }, // 500+230
-
-    { id: 'rupali_k', type: 'person', position: { x: 200, y: 1200 }, data: { name: 'Rupali Kashyap', gender: 'female' } },
-    { id: 'tanya_k', type: 'person', position: { x: 550, y: 1200 }, data: { name: 'Tanya Kashyap', gender: 'female' } },
-
-    // Branch 2 (Vinod)
-    { id: 'aniel', type: 'person', position: { x: 1300, y: 800 }, data: { name: 'Aniel Bhatia', gender: 'male' } },
-    { id: 'reenu', type: 'person', position: { x: 1650, y: 800 }, data: { name: 'Reenu Bhatia', gender: 'female' } },
-    { id: 'm-reenu', type: 'marriage', position: { x: 1530, y: 901 }, data: {} },
-
-    { id: 'naveen', type: 'person', position: { x: 2000, y: 800 }, data: { name: 'Naveen Gopal', gender: 'male' } },
-    { id: 'reema_g', type: 'person', position: { x: 2350, y: 800 }, data: { name: 'Reema Gopal', gender: 'female' } },
-    { id: 'm-naveen', type: 'marriage', position: { x: 2230, y: 901 }, data: {} },
-
-    // Generation 4 (Gopal Branch)
-    { id: 'vani', type: 'person', position: { x: 1475, y: 1100 }, data: { name: 'Vani Bhatia', gender: 'female' } },
-    { id: 'muskaan', type: 'person', position: { x: 2175, y: 1100 }, data: { name: 'Muskaan Gopal', gender: 'female' } },
-    { id: 'mehak', type: 'person', position: { x: 2525, y: 1100 }, data: { name: 'Mehak Gopal', gender: 'female' } },
-
-    // Branch 3 (Jatinder)
-    { id: 'manoj', type: 'person', position: { x: 2825, y: 800 }, data: { name: 'Manoj Sood', gender: 'male', birthYear: '1968' } },
-    { id: 'nitu', type: 'person', position: { x: 3175, y: 800 }, data: { name: 'Nitu Sood', gender: 'female', birthYear: '1973' } },
-    { id: 'm-manoj', type: 'marriage', position: { x: 3055, y: 901 }, data: {} },
-    { id: 'shalu', type: 'person', position: { x: 3525, y: 800 }, data: { name: 'Shalu Sood Luthra', gender: 'female', birthYear: '1972' } },
-
-    // Generation 4 (Jatinder Branch)
-    { id: 'bhavesh_s', type: 'person', position: { x: 3000, y: 1100 }, data: { name: 'Bhavesh Sood', gender: 'male', birthYear: '1995' } },
-
-    // Branch 4 (Virendra)
-    { id: 'rishi', type: 'person', position: { x: 4325, y: 800 }, data: { name: 'Rishi Sood', gender: 'male', birthYear: '1971' } },
-    { id: 'neha', type: 'person', position: { x: 4675, y: 800 }, data: { name: 'Neha Sood', gender: 'female', birthYear: '1977' } },
-    { id: 'm-rishi', type: 'marriage', position: { x: 4555, y: 901 }, data: {} },
-
-    { id: 'gaurav', type: 'person', position: { x: 5025, y: 800 }, data: { name: 'Gaurav Sood', gender: 'male', birthYear: '1977' } },
-    { id: 'amrita', type: 'person', position: { x: 5375, y: 800 }, data: { name: 'Amrita Sood', gender: 'female', birthYear: '1981' } },
-    { id: 'm-gaurav', type: 'marriage', position: { x: 5255, y: 901 }, data: {} },
-
-    // Generation 4 (Virendra Branch)
-    { id: 'vihaan', type: 'person', position: { x: 4500, y: 1100 }, data: { name: 'Vihaan Sood', gender: 'male', birthYear: '2008' } },
+    {
+        "id": "ram_kishan_sood",
+        "type": "person",
+        "position": {
+            "x": 0,
+            "y": -850.0
+        },
+        "data": {
+            "name": "Ram Kishan Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "roda",
+        "type": "person",
+        "position": {
+            "x": 2000,
+            "y": 0.0
+        },
+        "data": {
+            "name": "Roda Mal Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "bhoda_mal_sood",
+        "type": "person",
+        "position": {
+            "x": -6000,
+            "y": 0.0
+        },
+        "data": {
+            "name": "Bhoda Mal Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "khushal",
+        "type": "person",
+        "position": {
+            "x": 2000,
+            "y": 850.0
+        },
+        "data": {
+            "name": "Khushal Chand Sood",
+            "gender": "male",
+            "birthYear": "1800s",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "jwala",
+        "type": "person",
+        "position": {
+            "x": 2280,
+            "y": 850.0
+        },
+        "data": {
+            "name": "Jwala Devi Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_khushal_jwala",
+        "type": "marriage",
+        "position": {
+            "x": 2210.0,
+            "y": 880.0
+        },
+        "data": {}
+    },
+    {
+        "id": "lajpat_rai_sood",
+        "type": "person",
+        "position": {
+            "x": -8000,
+            "y": 850.0
+        },
+        "data": {
+            "name": "Lajpat Rai Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "dhandevi_sood",
+        "type": "person",
+        "position": {
+            "x": -7720,
+            "y": 850.0
+        },
+        "data": {
+            "name": "Dhandevi Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_lajpat_dhandevi",
+        "type": "marriage",
+        "position": {
+            "x": -7790.0,
+            "y": 880.0
+        },
+        "data": {}
+    },
+    {
+        "id": "mela_ram_sood",
+        "type": "person",
+        "position": {
+            "x": -4000,
+            "y": 850.0
+        },
+        "data": {
+            "name": "Mela Ram Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "charandas",
+        "type": "person",
+        "position": {
+            "x": 1990.0,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Charandas Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "gauri",
+        "type": "person",
+        "position": {
+            "x": 2290.0,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Gauri Shankar Sood",
+            "gender": "male",
+            "birthYear": "1800s",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "kaushalya",
+        "type": "person",
+        "position": {
+            "x": 4280,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Kaushalya Devi",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_gauri_kaushalya",
+        "type": "marriage",
+        "position": {
+            "x": 4210.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "jaswant_rai_sood",
+        "type": "person",
+        "position": {
+            "x": -11000,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Jaswant Rai Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "sarla_sood_jaswant",
+        "type": "person",
+        "position": {
+            "x": -10720,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Sarla Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_jaswant_sarla",
+        "type": "marriage",
+        "position": {
+            "x": -10790.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "satpal_sood",
+        "type": "person",
+        "position": {
+            "x": -9500,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Satpal Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "prem_sood",
+        "type": "person",
+        "position": {
+            "x": -9220,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Prem Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_satpal_prem",
+        "type": "marriage",
+        "position": {
+            "x": -9290.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "yashpal_sood",
+        "type": "person",
+        "position": {
+            "x": -8200,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Yashpal Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "savitri_sood_mahindra",
+        "type": "person",
+        "position": {
+            "x": -7600,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Savitri Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "rl_mahindra",
+        "type": "person",
+        "position": {
+            "x": -7320,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "R.L. Mahindra",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_savitri_rl_mahindra",
+        "type": "marriage",
+        "position": {
+            "x": -7390.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "sundar_lata_sood_kapoor",
+        "type": "person",
+        "position": {
+            "x": -6200,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Sundar Lata Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "kapoor_spouse",
+        "type": "person",
+        "position": {
+            "x": -5920,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Kapoor",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_sundar_kapoor",
+        "type": "marriage",
+        "position": {
+            "x": -5990.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "ved_lata_sood",
+        "type": "person",
+        "position": {
+            "x": -5000,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Ved Lata Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "yashpal_sood_husband_of_ved_lata",
+        "type": "person",
+        "position": {
+            "x": -4720,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Yashpal Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_ved_yashpal",
+        "type": "marriage",
+        "position": {
+            "x": -4790.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "aruna_sood",
+        "type": "person",
+        "position": {
+            "x": -4400,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Aruna Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "renu_sood",
+        "type": "person",
+        "position": {
+            "x": -4100,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Renu Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "saroj_sood_melaram",
+        "type": "person",
+        "position": {
+            "x": -3800,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Saroj Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "devinder_sood",
+        "type": "person",
+        "position": {
+            "x": -3400,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Devinder Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "rabinder_sood",
+        "type": "person",
+        "position": {
+            "x": -3120,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Rabinder Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_devinder_rabinder",
+        "type": "marriage",
+        "position": {
+            "x": -3190.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "rajendra_kashyap",
+        "type": "person",
+        "position": {
+            "x": -2600,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Rajendra Kashyap",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "neelam_kashyap",
+        "type": "person",
+        "position": {
+            "x": -2320,
+            "y": 1700.0
+        },
+        "data": {
+            "name": "Neelam",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_rajendra_neelam_k",
+        "type": "marriage",
+        "position": {
+            "x": -2390.0,
+            "y": 1730.0
+        },
+        "data": {}
+    },
+    {
+        "id": "mahindra",
+        "type": "person",
+        "position": {
+            "x": -2000,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Mahindra Pratap Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "brij_mohan_sood",
+        "type": "person",
+        "position": {
+            "x": -11110.0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Brij Mohan Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "sushma_sood",
+        "type": "person",
+        "position": {
+            "x": -10860.0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Sushma Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "rama_sood",
+        "type": "person",
+        "position": {
+            "x": -10610.0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Rama Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ajay_sood_satpal",
+        "type": "person",
+        "position": {
+            "x": -9510.0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Ajay Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "jyoti_sood",
+        "type": "person",
+        "position": {
+            "x": -9420,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Jyoti Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_ajay_jyoti",
+        "type": "marriage",
+        "position": {
+            "x": -9490.0,
+            "y": 2580.0
+        },
+        "data": {}
+    },
+    {
+        "id": "vinay_sood",
+        "type": "person",
+        "position": {
+            "x": -9210.0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Vinay Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "savita",
+        "type": "person",
+        "position": {
+            "x": -8200,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Savita Mahindra",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "virinder_mahindra",
+        "type": "person",
+        "position": {
+            "x": -7900,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Virinder Mahindra",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "surindra_veer_mahindra",
+        "type": "person",
+        "position": {
+            "x": -7600,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Surindra Veer Mahindra",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "kuki",
+        "type": "person",
+        "position": {
+            "x": -7300,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Kuki Mahindra",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "dharendra_veer_mahindra",
+        "type": "person",
+        "position": {
+            "x": -7000,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Dharendra Veer Mahindra",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "kusum_mahindra",
+        "type": "person",
+        "position": {
+            "x": -6720,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Kusum Mahindra",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_dharendra_kusum",
+        "type": "marriage",
+        "position": {
+            "x": -6790.0,
+            "y": 2580.0
+        },
+        "data": {}
+    },
+    {
+        "id": "unnamed_child1_devinder",
+        "type": "person",
+        "position": {
+            "x": -3410.0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Child 1",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "unnamed_child2_devinder",
+        "type": "person",
+        "position": {
+            "x": -3110.0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Child 2",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "pran",
+        "type": "person",
+        "position": {
+            "x": 0,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Pran Nath Sood",
+            "gender": "male",
+            "birthYear": "1911",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "gyanwati",
+        "type": "person",
+        "position": {
+            "x": 280,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Gyanwati Sood",
+            "gender": "female",
+            "birthYear": "1915",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_pran_gyanwati",
+        "type": "marriage",
+        "position": {
+            "x": 210.0,
+            "y": 2580.0
+        },
+        "data": {}
+    },
+    {
+        "id": "surender",
+        "type": "person",
+        "position": {
+            "x": 6000,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Surender Nath Sood",
+            "gender": "male",
+            "birthYear": "1923",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "sarla",
+        "type": "person",
+        "position": {
+            "x": 6280,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Sarla Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_surender_sarla",
+        "type": "marriage",
+        "position": {
+            "x": 6210.0,
+            "y": 2580.0
+        },
+        "data": {}
+    },
+    {
+        "id": "saraswati",
+        "type": "person",
+        "position": {
+            "x": 10000,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Saraswati Devi Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ramrakha",
+        "type": "person",
+        "position": {
+            "x": 10280,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Ram Rakha Dhanda",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_saraswati_ram",
+        "type": "marriage",
+        "position": {
+            "x": 10210.0,
+            "y": 2580.0
+        },
+        "data": {}
+    },
+    {
+        "id": "puspa_sood",
+        "type": "person",
+        "position": {
+            "x": 14000,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Puspa Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "amarnath_sud",
+        "type": "person",
+        "position": {
+            "x": 14280,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Amarnath Sud",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_puspa_amarnath",
+        "type": "marriage",
+        "position": {
+            "x": 14210.0,
+            "y": 2580.0
+        },
+        "data": {}
+    },
+    {
+        "id": "anjana_sud",
+        "type": "person",
+        "position": {
+            "x": 14560,
+            "y": 2550.0
+        },
+        "data": {
+            "name": "Anjana Sud",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_amarnath_anjana",
+        "type": "marriage",
+        "position": {
+            "x": 14490.0,
+            "y": 2580.0
+        },
+        "data": {}
+    },
+    {
+        "id": "saroj",
+        "type": "person",
+        "position": {
+            "x": -2800,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Saroj Sood Kashyap",
+            "gender": "female",
+            "birthYear": "1937",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ravindra",
+        "type": "person",
+        "position": {
+            "x": -2520,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Rabindra Nath Kashyap",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_saroj_ravindra",
+        "type": "marriage",
+        "position": {
+            "x": -2590.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "vinod",
+        "type": "person",
+        "position": {
+            "x": -1400,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Vinod Sood Gopal",
+            "gender": "female",
+            "birthYear": "1939",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "satish",
+        "type": "person",
+        "position": {
+            "x": -1120,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Brig. Satish Chandra Gopal",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_vinod_satish",
+        "type": "marriage",
+        "position": {
+            "x": -1190.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "jatinder",
+        "type": "person",
+        "position": {
+            "x": 0,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Jatinder Nath Sood",
+            "gender": "male",
+            "birthYear": "1942",
+            "deathYear": null,
+            "photo": null,
+            "petName": "Jiti"
+        }
+    },
+    {
+        "id": "kusum_lata",
+        "type": "person",
+        "position": {
+            "x": 280,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Kusum Lata Sood",
+            "gender": "female",
+            "birthYear": "1946",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_jatinder_kusum",
+        "type": "marriage",
+        "position": {
+            "x": 210.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "virendra",
+        "type": "person",
+        "position": {
+            "x": 1400,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Virendra Mohan Sood",
+            "gender": "male",
+            "birthYear": "1944",
+            "deathYear": null,
+            "photo": null,
+            "petName": "Guddu"
+        }
+    },
+    {
+        "id": "smriti",
+        "type": "person",
+        "position": {
+            "x": 1680,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Smriti Sood",
+            "gender": "female",
+            "birthYear": "1952",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_virendra_smriti",
+        "type": "marriage",
+        "position": {
+            "x": 1610.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "ravinder",
+        "type": "person",
+        "position": {
+            "x": 2800,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Ravinder Nath Sood",
+            "gender": "male",
+            "birthYear": "1948",
+            "deathYear": null,
+            "photo": null,
+            "petName": "Ram / Ramu"
+        }
+    },
+    {
+        "id": "bala",
+        "type": "person",
+        "position": {
+            "x": 3080,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Bala Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_ravinder_bala",
+        "type": "marriage",
+        "position": {
+            "x": 3010.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "rajiv",
+        "type": "person",
+        "position": {
+            "x": 5990.0,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Rajiv Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "neelam",
+        "type": "person",
+        "position": {
+            "x": 5280,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Neelam Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_rajiv_neelam",
+        "type": "marriage",
+        "position": {
+            "x": 5210.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "renuka",
+        "type": "person",
+        "position": {
+            "x": 6290.0,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Renuka Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ramesh",
+        "type": "person",
+        "position": {
+            "x": 8000,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Ramesh Dhanda",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "usha_dhanda",
+        "type": "person",
+        "position": {
+            "x": 8280,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Usha Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_ramesh_usha",
+        "type": "marriage",
+        "position": {
+            "x": 8210.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "suresh",
+        "type": "person",
+        "position": {
+            "x": 9200,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Suresh Dhanda",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "vibha",
+        "type": "person",
+        "position": {
+            "x": 9480,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Vibha Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_suresh_vibha",
+        "type": "marriage",
+        "position": {
+            "x": 9410.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "vijay_dhanda",
+        "type": "person",
+        "position": {
+            "x": 10200,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Vijay Dhanda",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "anand_dhanda",
+        "type": "person",
+        "position": {
+            "x": 10600,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Anand Dhanda",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "bimla_dhanda",
+        "type": "person",
+        "position": {
+            "x": 11000,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Bimla Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "rajendra_lal_ravi",
+        "type": "person",
+        "position": {
+            "x": 11280,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Rajendra Lal Ravi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_bimla_rajendra",
+        "type": "marriage",
+        "position": {
+            "x": 11210.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "bala_dhanda",
+        "type": "person",
+        "position": {
+            "x": 12200,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Bala Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ishwar_chand",
+        "type": "person",
+        "position": {
+            "x": 12480,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Ishwar Chand",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_bala_ishwar",
+        "type": "marriage",
+        "position": {
+            "x": 12410.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "yashveer_dhanda",
+        "type": "person",
+        "position": {
+            "x": 13200,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Yashveer Dhanda",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "chandra_prabha_dhanda",
+        "type": "person",
+        "position": {
+            "x": 13600,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Chandra Prabha Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "som_prakash_arya",
+        "type": "person",
+        "position": {
+            "x": 13880,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Som Prakash Arya",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_chandra_som",
+        "type": "marriage",
+        "position": {
+            "x": 13810.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "sudesh_dhanda",
+        "type": "person",
+        "position": {
+            "x": 14800,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Sudesh Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "kulvir_raj_bedi",
+        "type": "person",
+        "position": {
+            "x": 15080,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Kulvir Raj Bedi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_sudesh_kulvir",
+        "type": "marriage",
+        "position": {
+            "x": 15010.0,
+            "y": 3430.0
+        },
+        "data": {}
+    },
+    {
+        "id": "ajit_sud",
+        "type": "person",
+        "position": {
+            "x": 14420.0,
+            "y": 3400.0
+        },
+        "data": {
+            "name": "Ajit Sud (Gogi Uncle)",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "anu_k",
+        "type": "person",
+        "position": {
+            "x": -3200,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Anu Kashyap Dua",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ritu",
+        "type": "person",
+        "position": {
+            "x": -2900,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Ritu Kashyap Minocha",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "rupal",
+        "type": "person",
+        "position": {
+            "x": -2600,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Rupal Kashyap",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ashish",
+        "type": "person",
+        "position": {
+            "x": -2300,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Ashish Kashyap",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "reema_b",
+        "type": "person",
+        "position": {
+            "x": -1410.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Reema Bhatia",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "arvind",
+        "type": "person",
+        "position": {
+            "x": -1520,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Arvind Bhatia",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_reema_arvind",
+        "type": "marriage",
+        "position": {
+            "x": -1590.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "naveen",
+        "type": "person",
+        "position": {
+            "x": -1110.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Naveen Gopal",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "reema_g",
+        "type": "person",
+        "position": {
+            "x": -720,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Reema Gopal",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_naveen_reema",
+        "type": "marriage",
+        "position": {
+            "x": -790.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "nitin",
+        "type": "person",
+        "position": {
+            "x": -10.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Nitin Sood",
+            "gender": "male",
+            "birthYear": "1972",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "neeru",
+        "type": "person",
+        "position": {
+            "x": 80,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Neeru Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_nitin_neeru",
+        "type": "marriage",
+        "position": {
+            "x": 10.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "shruti_kirti",
+        "type": "person",
+        "position": {
+            "x": 290.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Shruti Kirti Sood",
+            "gender": "female",
+            "birthYear": "1978",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "rishi",
+        "type": "person",
+        "position": {
+            "x": 1390.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Rishi Sood",
+            "gender": "male",
+            "birthYear": "1977",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "usha_sood",
+        "type": "person",
+        "position": {
+            "x": 1480,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Usha Sood",
+            "gender": "female",
+            "birthYear": "1977",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_rishi_usha",
+        "type": "marriage",
+        "position": {
+            "x": 1410.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "gautam",
+        "type": "person",
+        "position": {
+            "x": 1690.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Gautam Sood",
+            "gender": "male",
+            "birthYear": "1980",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "amanda",
+        "type": "person",
+        "position": {
+            "x": 2280,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Amanda Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_gautam_amanda",
+        "type": "marriage",
+        "position": {
+            "x": 2210.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "mohit",
+        "type": "person",
+        "position": {
+            "x": 2790.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Mohit Sood",
+            "gender": "male",
+            "birthYear": "1980",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "delcine",
+        "type": "person",
+        "position": {
+            "x": 3080,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Delcine",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_mohit_delcine",
+        "type": "marriage",
+        "position": {
+            "x": 3010.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "monica",
+        "type": "person",
+        "position": {
+            "x": 3090.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Monica Sood",
+            "gender": "female",
+            "birthYear": "1987",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "anupam",
+        "type": "person",
+        "position": {
+            "x": 4080,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Anupam Gupta",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_monica_anupam",
+        "type": "marriage",
+        "position": {
+            "x": 4010.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "amit",
+        "type": "person",
+        "position": {
+            "x": 4890.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Amit Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "sherley",
+        "type": "person",
+        "position": {
+            "x": 4880,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Sherley Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_amit_sherley",
+        "type": "marriage",
+        "position": {
+            "x": 4810.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "anuj",
+        "type": "person",
+        "position": {
+            "x": 5140.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Anuj Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "noor",
+        "type": "person",
+        "position": {
+            "x": 5680,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Noor Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_anuj_noor",
+        "type": "marriage",
+        "position": {
+            "x": 5610.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "rati",
+        "type": "person",
+        "position": {
+            "x": 5390.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Rati Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "amita_dhanda",
+        "type": "person",
+        "position": {
+            "x": 8140.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Amita Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "suvir",
+        "type": "person",
+        "position": {
+            "x": 9090.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Suvir Dhanda",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "abha",
+        "type": "person",
+        "position": {
+            "x": 9340.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Abha Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "veenu",
+        "type": "person",
+        "position": {
+            "x": 9590.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Veenu Dhanda",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "prashant_ravi",
+        "type": "person",
+        "position": {
+            "x": 10890.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Prashant Ravi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "padma_ravi",
+        "type": "person",
+        "position": {
+            "x": 10880,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Padma Ravi",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_prashant_padma",
+        "type": "marriage",
+        "position": {
+            "x": 10810.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "ashok_ravi",
+        "type": "person",
+        "position": {
+            "x": 11140.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Ashok Ravi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "upendra_ravi",
+        "type": "person",
+        "position": {
+            "x": 11390.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Upendra Ravi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "namrata_ravi",
+        "type": "person",
+        "position": {
+            "x": 12080,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Namrata Ravi",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "m_upendra_namrata",
+        "type": "marriage",
+        "position": {
+            "x": 12010.0,
+            "y": 4280.0
+        },
+        "data": {}
+    },
+    {
+        "id": "unnamed_child1_chandra_prabha",
+        "type": "person",
+        "position": {
+            "x": 13590.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Child 1",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "unnamed_child2_chandra_prabha",
+        "type": "person",
+        "position": {
+            "x": 13890.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Child 2",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ajay_bedi",
+        "type": "person",
+        "position": {
+            "x": 14790.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Ajay Bedi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "unnamed_child_sudesh",
+        "type": "person",
+        "position": {
+            "x": 15090.0,
+            "y": 4250.0
+        },
+        "data": {
+            "name": "Child",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "vani",
+        "type": "person",
+        "position": {
+            "x": -1660.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Vani Bhatia",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "muskaan",
+        "type": "person",
+        "position": {
+            "x": -1010.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Muskaan Gopal",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "mehak",
+        "type": "person",
+        "position": {
+            "x": -710.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Mehak Gopal",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "bhavesh",
+        "type": "person",
+        "position": {
+            "x": -60.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Bhavesh Sood",
+            "gender": "male",
+            "birthYear": "2001",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "anika_sood",
+        "type": "person",
+        "position": {
+            "x": 1190.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Anika Sood",
+            "gender": "female",
+            "birthYear": "2015",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "vihaan_sood",
+        "type": "person",
+        "position": {
+            "x": 1490.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Vihaan Sood",
+            "gender": "male",
+            "birthYear": "2018",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "sanaya_sood",
+        "type": "person",
+        "position": {
+            "x": 2140.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Serena Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "saya_sood",
+        "type": "person",
+        "position": {
+            "x": 2690.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Saya Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "aditya_sood",
+        "type": "person",
+        "position": {
+            "x": 2940.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Aditya Sood",
+            "gender": "male",
+            "birthYear": "2011",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "sana_sood",
+        "type": "person",
+        "position": {
+            "x": 3190.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Sana Sood",
+            "gender": "female",
+            "birthYear": "2014",
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "riya_gupta",
+        "type": "person",
+        "position": {
+            "x": 3790.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Riya Gupta",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "siya_gupta",
+        "type": "person",
+        "position": {
+            "x": 4090.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Siya Gupta",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "shiv",
+        "type": "person",
+        "position": {
+            "x": 4590.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Shiv Sood",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "ananya",
+        "type": "person",
+        "position": {
+            "x": 4890.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Ananya Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "anaia",
+        "type": "person",
+        "position": {
+            "x": 5540.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Anaia Sood",
+            "gender": "female",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "gautam_ravi",
+        "type": "person",
+        "position": {
+            "x": 11790.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Gautam Ravi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    },
+    {
+        "id": "gaurav_ravi",
+        "type": "person",
+        "position": {
+            "x": 12090.0,
+            "y": 5100.0
+        },
+        "data": {
+            "name": "Gaurav Ravi",
+            "gender": "male",
+            "birthYear": null,
+            "deathYear": null,
+            "photo": null,
+            "petName": null
+        }
+    }
 ];
-
 export const initialEdges = [
-    // Gen 1 Marriage (Pran - Gyanwati)
-    { id: 'e-pran-m1', source: 'pran', target: 'm1', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-m1-gyanwati', source: 'm1', target: 'gyanwati', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    // Gen 2 Children (From Marriage 1)
-    { id: 'e-m1-saroj', source: 'm1', target: 'saroj', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-m1-vinod', source: 'm1', target: 'vinod', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-m1-jatinder', source: 'm1', target: 'jatinder', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-m1-virendra', source: 'm1', target: 'virendra', sourceHandle: 'bottom', targetHandle: 'top' },
-
-    // Gen 2 Marriages
-    { id: 'e-kailash-mk', source: 'kailash', target: 'm-kashyap', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mk-saroj', source: 'm-kashyap', target: 'saroj', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    { id: 'e-vinod-mg', source: 'vinod', target: 'm-gopal', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mg-brij', source: 'm-gopal', target: 'brij', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    { id: 'e-jatinder-mj', source: 'jatinder', target: 'm-jatinder', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mj-padmavati', source: 'm-jatinder', target: 'padmavati', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    { id: 'e-virendra-mv', source: 'virendra', target: 'm-virendra', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mv-suniti', source: 'm-virendra', target: 'suniti', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    // Gen 3 Children (From Marriage Nodes)
-    // Kashyap
-    { id: 'e-mk-anil', source: 'm-kashyap', target: 'anil', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mk-ritu', source: 'm-kashyap', target: 'ritu', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mk-rupali', source: 'm-kashyap', target: 'rupali_k', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mk-tanya', source: 'm-kashyap', target: 'tanya_k', sourceHandle: 'bottom', targetHandle: 'top' },
-
-    { id: 'e-anil-ma', source: 'anil', target: 'm-anil', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-ma-durr', source: 'm-anil', target: 'durr', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    { id: 'e-mischa-mr', source: 'mischa', target: 'm-ritu', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mr-ritu', source: 'm-ritu', target: 'ritu', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    // Gopal
-    { id: 'e-mg-aniel', source: 'm-gopal', target: 'aniel', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mg-naveen', source: 'm-gopal', target: 'naveen', sourceHandle: 'bottom', targetHandle: 'top' },
-
-    { id: 'e-aniel-mre', source: 'aniel', target: 'm-reenu', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mre-reenu', source: 'm-reenu', target: 'reenu', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    { id: 'e-naveen-mn', source: 'naveen', target: 'm-naveen', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mn-reema', source: 'm-naveen', target: 'reema_g', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    // Gen 4 Gopal
-    { id: 'e-mre-vani', source: 'm-reenu', target: 'vani', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mn-muskaan', source: 'm-naveen', target: 'muskaan', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mn-mehak', source: 'm-naveen', target: 'mehak', sourceHandle: 'bottom', targetHandle: 'top' },
-
-    // Jatinder
-    { id: 'e-mj-manoj', source: 'm-jatinder', target: 'manoj', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mj-shalu', source: 'm-jatinder', target: 'shalu', sourceHandle: 'bottom', targetHandle: 'top' },
-
-    { id: 'e-manoj-mnn', source: 'manoj', target: 'm-manoj', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mnn-nitu', source: 'm-manoj', target: 'nitu', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mnn-bhavesh', source: 'm-manoj', target: 'bhavesh_s', sourceHandle: 'bottom', targetHandle: 'top' },
-
-    // Virendra
-    { id: 'e-mv-rishi', source: 'm-virendra', target: 'rishi', sourceHandle: 'bottom', targetHandle: 'top' },
-    { id: 'e-mv-gaurav', source: 'm-virendra', target: 'gaurav', sourceHandle: 'bottom', targetHandle: 'top' },
-
-    { id: 'e-rishi-mnr', source: 'rishi', target: 'm-rishi', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mnr-neha', source: 'm-rishi', target: 'neha', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    { id: 'e-gaurav-mng', source: 'gaurav', target: 'm-gaurav', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-    { id: 'e-mng-amrita', source: 'm-gaurav', target: 'amrita', sourceHandle: 'right', targetHandle: 'left', type: 'straight', style: { stroke: '#ef4444', strokeWidth: 4 } },
-
-    { id: 'e-mnr-vihaan', source: 'm-rishi', target: 'vihaan', sourceHandle: 'bottom', targetHandle: 'top' },
+    {
+        "id": "e-ram_kishan_sood-roda",
+        "source": "ram_kishan_sood",
+        "target": "roda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-ram_kishan_sood-bhoda_mal_sood",
+        "source": "ram_kishan_sood",
+        "target": "bhoda_mal_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-roda-khushal",
+        "source": "roda",
+        "target": "khushal",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-khushal-m_khushal_jwala",
+        "source": "khushal",
+        "target": "m_khushal_jwala",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_khushal_jwala-jwala",
+        "source": "m_khushal_jwala",
+        "target": "jwala",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-bhoda_mal_sood-lajpat_rai_sood",
+        "source": "bhoda_mal_sood",
+        "target": "lajpat_rai_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-lajpat_rai_sood-m_lajpat_dhandevi",
+        "source": "lajpat_rai_sood",
+        "target": "m_lajpat_dhandevi",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_lajpat_dhandevi-dhandevi_sood",
+        "source": "m_lajpat_dhandevi",
+        "target": "dhandevi_sood",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-bhoda_mal_sood-mela_ram_sood",
+        "source": "bhoda_mal_sood",
+        "target": "mela_ram_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_khushal_jwala-charandas",
+        "source": "m_khushal_jwala",
+        "target": "charandas",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_khushal_jwala-gauri",
+        "source": "m_khushal_jwala",
+        "target": "gauri",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-gauri-m_gauri_kaushalya",
+        "source": "gauri",
+        "target": "m_gauri_kaushalya",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_gauri_kaushalya-kaushalya",
+        "source": "m_gauri_kaushalya",
+        "target": "kaushalya",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_lajpat_dhandevi-jaswant_rai_sood",
+        "source": "m_lajpat_dhandevi",
+        "target": "jaswant_rai_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-jaswant_rai_sood-m_jaswant_sarla",
+        "source": "jaswant_rai_sood",
+        "target": "m_jaswant_sarla",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_jaswant_sarla-sarla_sood_jaswant",
+        "source": "m_jaswant_sarla",
+        "target": "sarla_sood_jaswant",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_lajpat_dhandevi-satpal_sood",
+        "source": "m_lajpat_dhandevi",
+        "target": "satpal_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-satpal_sood-m_satpal_prem",
+        "source": "satpal_sood",
+        "target": "m_satpal_prem",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_satpal_prem-prem_sood",
+        "source": "m_satpal_prem",
+        "target": "prem_sood",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_lajpat_dhandevi-yashpal_sood",
+        "source": "m_lajpat_dhandevi",
+        "target": "yashpal_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_lajpat_dhandevi-savitri_sood_mahindra",
+        "source": "m_lajpat_dhandevi",
+        "target": "savitri_sood_mahindra",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-savitri_sood_mahindra-m_savitri_rl_mahindra",
+        "source": "savitri_sood_mahindra",
+        "target": "m_savitri_rl_mahindra",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_savitri_rl_mahindra-rl_mahindra",
+        "source": "m_savitri_rl_mahindra",
+        "target": "rl_mahindra",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_lajpat_dhandevi-sundar_lata_sood_kapoor",
+        "source": "m_lajpat_dhandevi",
+        "target": "sundar_lata_sood_kapoor",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-sundar_lata_sood_kapoor-m_sundar_kapoor",
+        "source": "sundar_lata_sood_kapoor",
+        "target": "m_sundar_kapoor",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_sundar_kapoor-kapoor_spouse",
+        "source": "m_sundar_kapoor",
+        "target": "kapoor_spouse",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_lajpat_dhandevi-ved_lata_sood",
+        "source": "m_lajpat_dhandevi",
+        "target": "ved_lata_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-ved_lata_sood-m_ved_yashpal",
+        "source": "ved_lata_sood",
+        "target": "m_ved_yashpal",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_ved_yashpal-yashpal_sood_husband_of_ved_lata",
+        "source": "m_ved_yashpal",
+        "target": "yashpal_sood_husband_of_ved_lata",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-mela_ram_sood-aruna_sood",
+        "source": "mela_ram_sood",
+        "target": "aruna_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-mela_ram_sood-renu_sood",
+        "source": "mela_ram_sood",
+        "target": "renu_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-mela_ram_sood-saroj_sood_melaram",
+        "source": "mela_ram_sood",
+        "target": "saroj_sood_melaram",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-mela_ram_sood-devinder_sood",
+        "source": "mela_ram_sood",
+        "target": "devinder_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-devinder_sood-m_devinder_rabinder",
+        "source": "devinder_sood",
+        "target": "m_devinder_rabinder",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_devinder_rabinder-rabinder_sood",
+        "source": "m_devinder_rabinder",
+        "target": "rabinder_sood",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-mela_ram_sood-rajendra_kashyap",
+        "source": "mela_ram_sood",
+        "target": "rajendra_kashyap",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-rajendra_kashyap-m_rajendra_neelam_k",
+        "source": "rajendra_kashyap",
+        "target": "m_rajendra_neelam_k",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_rajendra_neelam_k-neelam_kashyap",
+        "source": "m_rajendra_neelam_k",
+        "target": "neelam_kashyap",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-charandas-mahindra",
+        "source": "charandas",
+        "target": "mahindra",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_jaswant_sarla-brij_mohan_sood",
+        "source": "m_jaswant_sarla",
+        "target": "brij_mohan_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_jaswant_sarla-sushma_sood",
+        "source": "m_jaswant_sarla",
+        "target": "sushma_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_jaswant_sarla-rama_sood",
+        "source": "m_jaswant_sarla",
+        "target": "rama_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_satpal_prem-ajay_sood_satpal",
+        "source": "m_satpal_prem",
+        "target": "ajay_sood_satpal",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-ajay_sood_satpal-m_ajay_jyoti",
+        "source": "ajay_sood_satpal",
+        "target": "m_ajay_jyoti",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_ajay_jyoti-jyoti_sood",
+        "source": "m_ajay_jyoti",
+        "target": "jyoti_sood",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_satpal_prem-vinay_sood",
+        "source": "m_satpal_prem",
+        "target": "vinay_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_savitri_rl_mahindra-savita",
+        "source": "m_savitri_rl_mahindra",
+        "target": "savita",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_savitri_rl_mahindra-virinder_mahindra",
+        "source": "m_savitri_rl_mahindra",
+        "target": "virinder_mahindra",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_savitri_rl_mahindra-surindra_veer_mahindra",
+        "source": "m_savitri_rl_mahindra",
+        "target": "surindra_veer_mahindra",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_savitri_rl_mahindra-kuki",
+        "source": "m_savitri_rl_mahindra",
+        "target": "kuki",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_savitri_rl_mahindra-dharendra_veer_mahindra",
+        "source": "m_savitri_rl_mahindra",
+        "target": "dharendra_veer_mahindra",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-dharendra_veer_mahindra-m_dharendra_kusum",
+        "source": "dharendra_veer_mahindra",
+        "target": "m_dharendra_kusum",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_dharendra_kusum-kusum_mahindra",
+        "source": "m_dharendra_kusum",
+        "target": "kusum_mahindra",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_devinder_rabinder-unnamed_child1_devinder",
+        "source": "m_devinder_rabinder",
+        "target": "unnamed_child1_devinder",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_devinder_rabinder-unnamed_child2_devinder",
+        "source": "m_devinder_rabinder",
+        "target": "unnamed_child2_devinder",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_gauri_kaushalya-pran",
+        "source": "m_gauri_kaushalya",
+        "target": "pran",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-pran-m_pran_gyanwati",
+        "source": "pran",
+        "target": "m_pran_gyanwati",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_pran_gyanwati-gyanwati",
+        "source": "m_pran_gyanwati",
+        "target": "gyanwati",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_gauri_kaushalya-surender",
+        "source": "m_gauri_kaushalya",
+        "target": "surender",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-surender-m_surender_sarla",
+        "source": "surender",
+        "target": "m_surender_sarla",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_surender_sarla-sarla",
+        "source": "m_surender_sarla",
+        "target": "sarla",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_gauri_kaushalya-saraswati",
+        "source": "m_gauri_kaushalya",
+        "target": "saraswati",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-saraswati-m_saraswati_ram",
+        "source": "saraswati",
+        "target": "m_saraswati_ram",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-ramrakha",
+        "source": "m_saraswati_ram",
+        "target": "ramrakha",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_gauri_kaushalya-puspa_sood",
+        "source": "m_gauri_kaushalya",
+        "target": "puspa_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-puspa_sood-m_puspa_amarnath",
+        "source": "puspa_sood",
+        "target": "m_puspa_amarnath",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_puspa_amarnath-amarnath_sud",
+        "source": "m_puspa_amarnath",
+        "target": "amarnath_sud",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-amarnath_sud-m_amarnath_anjana",
+        "source": "amarnath_sud",
+        "target": "m_amarnath_anjana",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_amarnath_anjana-anjana_sud",
+        "source": "m_amarnath_anjana",
+        "target": "anjana_sud",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_pran_gyanwati-saroj",
+        "source": "m_pran_gyanwati",
+        "target": "saroj",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-saroj-m_saroj_ravindra",
+        "source": "saroj",
+        "target": "m_saroj_ravindra",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_saroj_ravindra-ravindra",
+        "source": "m_saroj_ravindra",
+        "target": "ravindra",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_pran_gyanwati-vinod",
+        "source": "m_pran_gyanwati",
+        "target": "vinod",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-vinod-m_vinod_satish",
+        "source": "vinod",
+        "target": "m_vinod_satish",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_vinod_satish-satish",
+        "source": "m_vinod_satish",
+        "target": "satish",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_pran_gyanwati-jatinder",
+        "source": "m_pran_gyanwati",
+        "target": "jatinder",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-jatinder-m_jatinder_kusum",
+        "source": "jatinder",
+        "target": "m_jatinder_kusum",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_jatinder_kusum-kusum_lata",
+        "source": "m_jatinder_kusum",
+        "target": "kusum_lata",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_pran_gyanwati-virendra",
+        "source": "m_pran_gyanwati",
+        "target": "virendra",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-virendra-m_virendra_smriti",
+        "source": "virendra",
+        "target": "m_virendra_smriti",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_virendra_smriti-smriti",
+        "source": "m_virendra_smriti",
+        "target": "smriti",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_pran_gyanwati-ravinder",
+        "source": "m_pran_gyanwati",
+        "target": "ravinder",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-ravinder-m_ravinder_bala",
+        "source": "ravinder",
+        "target": "m_ravinder_bala",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_ravinder_bala-bala",
+        "source": "m_ravinder_bala",
+        "target": "bala",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_surender_sarla-rajiv",
+        "source": "m_surender_sarla",
+        "target": "rajiv",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-rajiv-m_rajiv_neelam",
+        "source": "rajiv",
+        "target": "m_rajiv_neelam",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_rajiv_neelam-neelam",
+        "source": "m_rajiv_neelam",
+        "target": "neelam",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_surender_sarla-renuka",
+        "source": "m_surender_sarla",
+        "target": "renuka",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-ramesh",
+        "source": "m_saraswati_ram",
+        "target": "ramesh",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-ramesh-m_ramesh_usha",
+        "source": "ramesh",
+        "target": "m_ramesh_usha",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_ramesh_usha-usha_dhanda",
+        "source": "m_ramesh_usha",
+        "target": "usha_dhanda",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-suresh",
+        "source": "m_saraswati_ram",
+        "target": "suresh",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-suresh-m_suresh_vibha",
+        "source": "suresh",
+        "target": "m_suresh_vibha",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_suresh_vibha-vibha",
+        "source": "m_suresh_vibha",
+        "target": "vibha",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-vijay_dhanda",
+        "source": "m_saraswati_ram",
+        "target": "vijay_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-anand_dhanda",
+        "source": "m_saraswati_ram",
+        "target": "anand_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-bimla_dhanda",
+        "source": "m_saraswati_ram",
+        "target": "bimla_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-bimla_dhanda-m_bimla_rajendra",
+        "source": "bimla_dhanda",
+        "target": "m_bimla_rajendra",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_bimla_rajendra-rajendra_lal_ravi",
+        "source": "m_bimla_rajendra",
+        "target": "rajendra_lal_ravi",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-bala_dhanda",
+        "source": "m_saraswati_ram",
+        "target": "bala_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-bala_dhanda-m_bala_ishwar",
+        "source": "bala_dhanda",
+        "target": "m_bala_ishwar",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_bala_ishwar-ishwar_chand",
+        "source": "m_bala_ishwar",
+        "target": "ishwar_chand",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-yashveer_dhanda",
+        "source": "m_saraswati_ram",
+        "target": "yashveer_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-chandra_prabha_dhanda",
+        "source": "m_saraswati_ram",
+        "target": "chandra_prabha_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-chandra_prabha_dhanda-m_chandra_som",
+        "source": "chandra_prabha_dhanda",
+        "target": "m_chandra_som",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_chandra_som-som_prakash_arya",
+        "source": "m_chandra_som",
+        "target": "som_prakash_arya",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_saraswati_ram-sudesh_dhanda",
+        "source": "m_saraswati_ram",
+        "target": "sudesh_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-sudesh_dhanda-m_sudesh_kulvir",
+        "source": "sudesh_dhanda",
+        "target": "m_sudesh_kulvir",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_sudesh_kulvir-kulvir_raj_bedi",
+        "source": "m_sudesh_kulvir",
+        "target": "kulvir_raj_bedi",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_amarnath_anjana-ajit_sud",
+        "source": "m_amarnath_anjana",
+        "target": "ajit_sud",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saroj_ravindra-anu_k",
+        "source": "m_saroj_ravindra",
+        "target": "anu_k",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saroj_ravindra-ritu",
+        "source": "m_saroj_ravindra",
+        "target": "ritu",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saroj_ravindra-rupal",
+        "source": "m_saroj_ravindra",
+        "target": "rupal",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_saroj_ravindra-ashish",
+        "source": "m_saroj_ravindra",
+        "target": "ashish",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_vinod_satish-reema_b",
+        "source": "m_vinod_satish",
+        "target": "reema_b",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-reema_b-m_reema_arvind",
+        "source": "reema_b",
+        "target": "m_reema_arvind",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_reema_arvind-arvind",
+        "source": "m_reema_arvind",
+        "target": "arvind",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_vinod_satish-naveen",
+        "source": "m_vinod_satish",
+        "target": "naveen",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-naveen-m_naveen_reema",
+        "source": "naveen",
+        "target": "m_naveen_reema",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_naveen_reema-reema_g",
+        "source": "m_naveen_reema",
+        "target": "reema_g",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_jatinder_kusum-nitin",
+        "source": "m_jatinder_kusum",
+        "target": "nitin",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-nitin-m_nitin_neeru",
+        "source": "nitin",
+        "target": "m_nitin_neeru",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_nitin_neeru-neeru",
+        "source": "m_nitin_neeru",
+        "target": "neeru",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_jatinder_kusum-shruti_kirti",
+        "source": "m_jatinder_kusum",
+        "target": "shruti_kirti",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_virendra_smriti-rishi",
+        "source": "m_virendra_smriti",
+        "target": "rishi",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-rishi-m_rishi_usha",
+        "source": "rishi",
+        "target": "m_rishi_usha",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_rishi_usha-usha_sood",
+        "source": "m_rishi_usha",
+        "target": "usha_sood",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_virendra_smriti-gautam",
+        "source": "m_virendra_smriti",
+        "target": "gautam",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-gautam-m_gautam_amanda",
+        "source": "gautam",
+        "target": "m_gautam_amanda",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_gautam_amanda-amanda",
+        "source": "m_gautam_amanda",
+        "target": "amanda",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_ravinder_bala-mohit",
+        "source": "m_ravinder_bala",
+        "target": "mohit",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-mohit-m_mohit_delcine",
+        "source": "mohit",
+        "target": "m_mohit_delcine",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_mohit_delcine-delcine",
+        "source": "m_mohit_delcine",
+        "target": "delcine",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_ravinder_bala-monica",
+        "source": "m_ravinder_bala",
+        "target": "monica",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-monica-m_monica_anupam",
+        "source": "monica",
+        "target": "m_monica_anupam",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_monica_anupam-anupam",
+        "source": "m_monica_anupam",
+        "target": "anupam",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_rajiv_neelam-amit",
+        "source": "m_rajiv_neelam",
+        "target": "amit",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-amit-m_amit_sherley",
+        "source": "amit",
+        "target": "m_amit_sherley",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_amit_sherley-sherley",
+        "source": "m_amit_sherley",
+        "target": "sherley",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_rajiv_neelam-anuj",
+        "source": "m_rajiv_neelam",
+        "target": "anuj",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-anuj-m_anuj_noor",
+        "source": "anuj",
+        "target": "m_anuj_noor",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_anuj_noor-noor",
+        "source": "m_anuj_noor",
+        "target": "noor",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_rajiv_neelam-rati",
+        "source": "m_rajiv_neelam",
+        "target": "rati",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_ramesh_usha-amita_dhanda",
+        "source": "m_ramesh_usha",
+        "target": "amita_dhanda",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_suresh_vibha-suvir",
+        "source": "m_suresh_vibha",
+        "target": "suvir",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_suresh_vibha-abha",
+        "source": "m_suresh_vibha",
+        "target": "abha",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_suresh_vibha-veenu",
+        "source": "m_suresh_vibha",
+        "target": "veenu",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_bimla_rajendra-prashant_ravi",
+        "source": "m_bimla_rajendra",
+        "target": "prashant_ravi",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-prashant_ravi-m_prashant_padma",
+        "source": "prashant_ravi",
+        "target": "m_prashant_padma",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_prashant_padma-padma_ravi",
+        "source": "m_prashant_padma",
+        "target": "padma_ravi",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_bimla_rajendra-ashok_ravi",
+        "source": "m_bimla_rajendra",
+        "target": "ashok_ravi",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_bimla_rajendra-upendra_ravi",
+        "source": "m_bimla_rajendra",
+        "target": "upendra_ravi",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-upendra_ravi-m_upendra_namrata",
+        "source": "upendra_ravi",
+        "target": "m_upendra_namrata",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_upendra_namrata-namrata_ravi",
+        "source": "m_upendra_namrata",
+        "target": "namrata_ravi",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "straight",
+        "style": {
+            "stroke": "#ef4444",
+            "strokeWidth": 3
+        }
+    },
+    {
+        "id": "e-m_chandra_som-unnamed_child1_chandra_prabha",
+        "source": "m_chandra_som",
+        "target": "unnamed_child1_chandra_prabha",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_chandra_som-unnamed_child2_chandra_prabha",
+        "source": "m_chandra_som",
+        "target": "unnamed_child2_chandra_prabha",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_sudesh_kulvir-ajay_bedi",
+        "source": "m_sudesh_kulvir",
+        "target": "ajay_bedi",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_sudesh_kulvir-unnamed_child_sudesh",
+        "source": "m_sudesh_kulvir",
+        "target": "unnamed_child_sudesh",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_reema_arvind-vani",
+        "source": "m_reema_arvind",
+        "target": "vani",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_naveen_reema-muskaan",
+        "source": "m_naveen_reema",
+        "target": "muskaan",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_naveen_reema-mehak",
+        "source": "m_naveen_reema",
+        "target": "mehak",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_nitin_neeru-bhavesh",
+        "source": "m_nitin_neeru",
+        "target": "bhavesh",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_rishi_usha-anika_sood",
+        "source": "m_rishi_usha",
+        "target": "anika_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_rishi_usha-vihaan_sood",
+        "source": "m_rishi_usha",
+        "target": "vihaan_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_gautam_amanda-sanaya_sood",
+        "source": "m_gautam_amanda",
+        "target": "sanaya_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_mohit_delcine-saya_sood",
+        "source": "m_mohit_delcine",
+        "target": "saya_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_mohit_delcine-aditya_sood",
+        "source": "m_mohit_delcine",
+        "target": "aditya_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_mohit_delcine-sana_sood",
+        "source": "m_mohit_delcine",
+        "target": "sana_sood",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_monica_anupam-riya_gupta",
+        "source": "m_monica_anupam",
+        "target": "riya_gupta",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_monica_anupam-siya_gupta",
+        "source": "m_monica_anupam",
+        "target": "siya_gupta",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_amit_sherley-shiv",
+        "source": "m_amit_sherley",
+        "target": "shiv",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_amit_sherley-ananya",
+        "source": "m_amit_sherley",
+        "target": "ananya",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_anuj_noor-anaia",
+        "source": "m_anuj_noor",
+        "target": "anaia",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_upendra_namrata-gautam_ravi",
+        "source": "m_upendra_namrata",
+        "target": "gautam_ravi",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    },
+    {
+        "id": "e-m_upendra_namrata-gaurav_ravi",
+        "source": "m_upendra_namrata",
+        "target": "gaurav_ravi",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "smoothstep",
+        "style": {
+            "stroke": "#8b5cf6",
+            "strokeWidth": 2,
+            "filter": "drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))"
+        }
+    }
 ];

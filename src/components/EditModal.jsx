@@ -4,9 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const EditModal = ({ person, isOpen, onClose, onSave, onDelete }) => {
     const [formData, setFormData] = useState(person || {});
+    const [showDeathYear, setShowDeathYear] = useState(!!person?.deathYear);
 
     useEffect(() => {
-        if (person) setFormData(person);
+        if (person) {
+            setFormData(person);
+            setShowDeathYear(!!person.deathYear);
+        }
     }, [person]);
 
     if (!isOpen) return null;
@@ -68,6 +72,15 @@ const EditModal = ({ person, isOpen, onClose, onSave, onDelete }) => {
                                 />
                             </div>
                             <div className="field">
+                                <label>Pet Name (Nickname)</label>
+                                <input
+                                    type="text"
+                                    value={formData.petName || ''}
+                                    onChange={(e) => setFormData({ ...formData, petName: e.target.value })}
+                                    placeholder="e.g. Guddu, Jiti, Ram"
+                                />
+                            </div>
+                            <div className="field">
                                 <label>Gender</label>
                                 <select
                                     value={formData.gender || 'male'}
@@ -84,18 +97,67 @@ const EditModal = ({ person, isOpen, onClose, onSave, onDelete }) => {
                                     type="text"
                                     value={formData.birthYear || ''}
                                     onChange={(e) => setFormData({ ...formData, birthYear: e.target.value })}
-                                    placeholder="e.g. 1950"
+                                    placeholder="e.g. 1950, 1800s, or Unknown"
                                 />
                             </div>
-                            <div className="field">
-                                <label>Death Year (if applicable)</label>
-                                <input
-                                    type="text"
-                                    value={formData.deathYear || ''}
-                                    onChange={(e) => setFormData({ ...formData, deathYear: e.target.value })}
-                                    placeholder="e.g. 2020 or leave blank"
-                                />
+
+                            {/* Status & Options Section */}
+                            <div className="field full status-section">
+                                <label>Status & Lifespan Options</label>
+                                <div className="checkbox-group">
+                                    <label className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={!!formData.isPresent}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                setFormData({
+                                                    ...formData,
+                                                    isPresent: checked,
+                                                    deathYear: checked ? '' : formData.deathYear
+                                                });
+                                                if (checked) setShowDeathYear(false);
+                                            }}
+                                        />
+                                        Currently Living (Present)
+                                    </label>
+
+                                    <label className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={showDeathYear}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                setShowDeathYear(checked);
+                                                if (checked) {
+                                                    setFormData({ ...formData, isPresent: false });
+                                                } else {
+                                                    setFormData({ ...formData, deathYear: '' });
+                                                }
+                                            }}
+                                        />
+                                        Deceased (Show Death Year)
+                                    </label>
+                                </div>
                             </div>
+
+                            {showDeathYear && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="field full"
+                                >
+                                    <label>Death Year</label>
+                                    <input
+                                        type="text"
+                                        value={formData.deathYear || ''}
+                                        onChange={(e) => setFormData({ ...formData, deathYear: e.target.value })}
+                                        placeholder="e.g. 2020"
+                                    />
+                                </motion.div>
+                            )}
+
                             <div className="field full">
                                 <label>Occupation</label>
                                 <input
@@ -209,6 +271,37 @@ const EditModal = ({ person, isOpen, onClose, onSave, onDelete }) => {
           transition: border-color 0.2s;
         }
         .field input:focus { border-color: var(--primary); }
+
+        .status-section {
+          background: #f8fafc;
+          padding: 12px;
+          border-radius: 10px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .checkbox-group {
+          display: flex;
+          gap: 20px;
+          flex-wrap: wrap;
+          margin-top: 4px;
+        }
+
+        .checkbox-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-main);
+          cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+          accent-color: var(--primary);
+        }
 
         .modal-footer {
           margin-top: 32px;

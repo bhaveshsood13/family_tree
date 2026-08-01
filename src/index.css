@@ -8,19 +8,20 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
   /* Gender Colors */
   --male: #3b82f6;
   --female: #ec4899;
-  
+
   /* Relationship Colors */
   --rel-marriage: #ef4444;
   --rel-parent: #3b82f6;
   --rel-sibling: #10b981;
-  
+
   --text-main: #1e293b;
   --text-muted: #64748b;
-  
+
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -32,7 +33,9 @@
   padding: 0;
 }
 
-body, html, #root {
+body,
+html,
+#root {
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -80,3 +83,666 @@ body, html, #root {
   background: var(--bg-card) !important;
   border-bottom: 1px solid #e2e8f0 !important;
 }
+
+/* --- TreeCanvas Component Styles --- */
+.canvas-container {
+  width: 100%;
+  height: 100%;
+  background: #f1f5f9;
+  background-image:
+    radial-gradient(circle at 2px 2px, #cbd5e1 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.canvas-toolbar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 8px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  flex-wrap: wrap;
+  /* Allow wrapping on small screens */
+  max-width: 95vw;
+  /* Prevent overflow */
+  justify-content: flex-end;
+}
+
+.history-group {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-btn {
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.icon-btn:not(:disabled):hover {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+  margin: 0 4px;
+}
+
+.mode-toggle {
+  display: flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.mode-toggle button {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.mode-toggle button.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: none;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.tool-btn.ai {
+  background: var(--primary);
+  color: white;
+  border: none;
+}
+
+.tool-btn.delete:hover {
+  border-color: #fee2e2;
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+@media (max-width: 768px) {
+  .canvas-toolbar {
+    top: auto;
+    bottom: 80px;
+    /* Above signature */
+    right: 50%;
+    transform: translateX(50%);
+    width: 95%;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .tool-btn span {
+    display: none;
+  }
+
+  /* Hide text on mobile */
+  .tool-btn {
+    padding: 10px;
+  }
+
+  .mode-toggle button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+/* --- PersonNode Component Styles --- */
+.person-node {
+  padding: 8px;
+  width: 160px;
+  /* Reduced fixed width */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.node-content {
+  padding: 16px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  transition: transform 0.2s ease;
+  border: 3px solid transparent;
+  background: white;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  /* Ensure content is above actions buffer */
+}
+
+/* ACTIONS VISIBILITY LOGIC */
+.actions-layer {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+}
+
+.person-node:hover .actions-layer,
+.person-node.selected .actions-layer {
+  opacity: 1;
+  pointer-events: none;
+  /* Allow clicks to pass through to the info/photo below */
+}
+
+/* Specific Buttons - Manually applying styles instead of invalid 'composes' */
+.action-item-delete {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+  z-index: 30;
+  padding: 0;
+}
+
+.action-item-delete:hover {
+  transform: scale(1.1);
+  background: #dc2626;
+}
+
+.spouse-action-wrapper {
+  position: absolute;
+  right: -48px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.action-item-spouse {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #db2777;
+  color: white;
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.action-item-spouse:hover {
+  transform: scale(1.15);
+  background: #be185d;
+}
+
+.spouse-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: #db2777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1px 4px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(219, 39, 119, 0.2);
+  white-space: nowrap;
+}
+
+.action-item-sibling {
+  /* Kept for reference if needed, but PersonNode now uses .action-item.sibling */
+  background: #10b981;
+  color: white;
+}
+
+.action-item-child {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Bottom Actions Group (Pill Style) */
+.node-actions {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 40px;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  border: 1px solid #e2e8f0;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.action-item span {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.action-item:hover {
+  transform: scale(1.1);
+  background: #f8fafc;
+}
+
+/* Styles for the text/icon inside the pill buttons */
+.action-item.sibling,
+.action-item.sibling svg {
+  color: #10b981;
+}
+
+.action-item.child,
+.action-item.child svg {
+  color: #3b82f6;
+}
+
+
+.person-node.male .node-content {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, white 0%, #dbeafe 100%);
+}
+
+.person-node.female .node-content {
+  border-color: #db2777;
+  background: linear-gradient(135deg, white 0%, #fce7f3 100%);
+}
+
+.person-node.selected .node-content {
+  transform: scale(1.02);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+}
+
+.photo-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f8fafc;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid white;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.photo-container:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+.photo-hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  border-radius: 50%;
+}
+
+.photo-container:hover .photo-hover-overlay {
+  opacity: 1;
+}
+
+.photo-hover-overlay .pencil-icon {
+  color: white;
+}
+
+.upload-hint {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.pet-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  font-style: italic;
+  margin-top: 1px;
+}
+
+.metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.lifespan,
+.occupation {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  border: 2px solid white;
+}
+
+/* --- MarriageNode Component Styles --- */
+.marriage-node-container {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Visible Dot/Heart */
+.marriage-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 10;
+}
+
+/* Hover Interaction */
+.marriage-node-container:hover .marriage-dot {
+  transform: scale(1.5);
+}
+
+.add-child-action {
+  position: absolute;
+  top: 20px;
+  /* Below the dot */
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.2s;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.marriage-node-container:hover .add-child-action {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.action-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+  background: #2563eb;
+}
+/* Ensure interactivity for buttons inside the overlay */
+.action-item-delete, .action-item-spouse, .action-item-sibling, .action-item-child, .node-actions, .marriage-node-container {
+  pointer-events: auto;
+}
+
+/* Generation Navigator Floating Panel */
+.generation-navigator {
+  position: absolute;
+  left: 20px;
+  top: 90px;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  padding: 12px 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 145px;
+  user-select: none;
+}
+
+.gen-nav-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.725rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.gen-nav-icon {
+  color: #6366f1;
+}
+
+.gen-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gen-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.gen-nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.entire-tree-item.active {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  border-color: transparent;
+}
+
+.gen-elevator-shaft {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.gen-elevator-line {
+  position: absolute;
+  left: 17px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: #e2e8f0;
+  z-index: 0;
+}
+
+.gen-floor-item {
+  position: relative;
+  z-index: 1;
+}
+
+.floor-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.675rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.gen-floor-item.active {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  font-weight: 700;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.gen-floor-item.active .floor-badge {
+  background: #4f46e5;
+  border-color: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.45);
+}
+
+/* Dimmed & Highlighted Node styles */
+.person-node.dimmed-node {
+  opacity: 0.2;
+  filter: grayscale(60%);
+  transition: all 0.4s ease;
+}
+
+.person-node.highlighted-gen-node {
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.55), 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-color: #6366f1;
+  transform: scale(1.03);
+  transition: all 0.4s ease;
+}
+

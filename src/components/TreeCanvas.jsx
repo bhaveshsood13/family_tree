@@ -12,73 +12,41 @@ import {
     Position
 } from '@xyflow/react';
 import PersonNode from './PersonNode';
+import MarriageNode from './MarriageNode';
 import EditModal from './EditModal';
 import ImportModal from './ImportModal';
+import FamilyBusEdge from './FamilyBusEdge';
+import GenerationNavigator from './GenerationNavigator';
 import { initialNodes, initialEdges } from '../store/initialData';
+import { fetchTree, saveTree } from '../api';
 import { getLayoutedElements } from '../utils/layout';
 import { toPng } from 'html-to-image';
 import confetti from 'canvas-confetti';
-import { Download, Plus, Layout, Move, Sparkles, Trash, Trash2, Undo, Redo, Printer, HelpCircle, RotateCcw } from 'lucide-react';
-
-// Specialized Marriage Node (Invisible/Small Dot)
-const MarriageNode = memo(() => (
-    <div className="marriage-node">
-        <Handle type="target" position={Position.Left} id="left" style={{ opacity: 0 }} />
-        <Handle type="source" position={Position.Right} id="right" style={{ opacity: 0 }} />
-        <Handle type="source" position={Position.Bottom} id="bottom" />
-        <style jsx>{`
-      .marriage-node {
-        width: 30px;
-        height: 4px;
-        background: #ef4444;
-        border-radius: 0;
-        position: relative;
-        /* box-shadow: 0 0 0 2px white; removed for seamless look */
-      }
-    `}</style>
-    </div>
-));
+import { Download, Plus, Trash2, Undo, Redo, Printer, RotateCcw, LogOut, CloudUpload, Loader2, Sparkles } from 'lucide-react';
 
 const nodeTypes = {
     person: PersonNode,
     marriage: MarriageNode,
 };
 
-const TreeCanvas = () => {
+const edgeTypes = {
+    smoothstep: FamilyBusEdge,
+    straight: FamilyBusEdge,
+    familyBus: FamilyBusEdge,
+};
+
+const TreeCanvas = ({ onLogout }) => {
     const [rfInstance, setRfInstance] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [history, setHistory] = useState({ past: [], future: [] });
     const [layoutMode, setLayoutMode] = useState('free');
     const [editingPerson, setEditingPerson] = useState(null);
-    const [isImportOpen, setIsImportOpen] = useState(false);
-    const { fitView } = useReactFlow();
-
-    // Load from localStorage on mount
-    useEffect(() => {
-        const savedNodes = localStorage.getItem('tf-nodes');
-        const savedEdges = localStorage.getItem('tf-edges');
-        if (savedNodes && savedEdges) {
-            setNodes(JSON.parse(savedNodes));
-            setEdges(JSON.parse(savedEdges));
-        } else {
-            setNodes(initialNodes);
-            setEdges(initialEdges);
-        }
-    }, [setNodes, setEdges]);
-
-    // Save to localStorage on change
-    useEffect(() => {
-        if (nodes.length > 0) {
-            try {
-                localStorage.setItem('tf-nodes', JSON.stringify(nodes));
-                localStorage.setItem('tf-edges', JSON.stringify(edges));
-            } catch (e) {
-                console.error('LocalStorage failed (size limit?):', e);
-            }
-        }
-    }, [nodes, edges]);
+    const [activeGen, setActiveGen] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const { fitView, fitBounds } = useReactFlow();
 
     const recordHistory = useCallback(() => {
         setHistory(prev => ({
@@ -125,45 +93,83 @@ const TreeCanvas = () => {
             setEdges([...layoutedEdges]);
             setTimeout(() => fitView({ duration: 800 }), 50);
         }
-    }, [layoutMode, nodes, edges, setNodes, setEdges, fitView]);
+    }, [nodes, recordHistory]);
 
     const onAddChild = useCallback((parentId) => {
         recordHistory();
-        const parentNode = nodes.find(n => n.id === parentId) || { position: { x: 500, y: 100 } };
 
-        // Check if parent is part of a marriage (connected to a marriage node)
-        const marriageEdge = edges.find(e => (e.source === parentId || e.target === parentId) && (e.target.startsWith('m-') || e.source.startsWith('m-') || e.target.includes('-m-') || e.id.includes('-m-')));
-        let connectToId = parentId;
-        let sourceHandle = 'bottom';
+        let parentNode = nodes.find((n) => n.id === parentId);
+        if (!parentNode) {
+            // Standalone root node when '+ New' toolbar button is clicked
+            const newNodeId = `n-${Date.now()}`;
+            const newNode = {
+                id: newNodeId,
+                type: 'person',
+                position: { x: 0, y: nodes.length > 0 ? Math.max(...nodes.map(n => n.position.y)) + 300 : 0 },
+                data: { name: 'New Person', gender: 'male', birthYear: '' },
+            };
+            setNodes((nds) => nds.concat(newNode));
+            return;
+        }
 
-        if (marriageEdge) {
-            // Find the marriage node ID
-            const mNodeId = nodes.find(n => n.type === 'marriage' && (edges.some(e => (e.source === n.id && e.target === parentId) || (e.target === n.id && e.source === parentId))))?.id;
-            // Simpler check: look for edge connecting parent to marriage node
-            const marriageNode = nodes.find(n => n.type === 'marriage' && edges.some(e => (e.source === parentId && e.target === n.id) || (e.target === parentId && e.source === n.id)));
-            if (marriageNode) {
-                connectToId = marriageNode.id;
-                sourceHandle = 'bottom';
+        // Robust Marriage Detection:
+        let marriageNodeId = null;
+        const connectedEdges = edges.filter(e => e.source === parentId || e.target === parentId);
+
+        for (const edge of connectedEdges) {
+            const otherNodeId = edge.source === parentId ? edge.target : edge.source;
+            const otherNode = nodes.find(n => n.id === otherNodeId);
+            if (otherNode && otherNode.type === 'marriage') {
+                marriageNodeId = otherNode.id;
+                break;
             }
         }
 
-        const newNodeId = `node-${Date.now()}`;
+        if (marriageNodeId) {
+            const marriageNode = nodes.find(n => n.id === marriageNodeId);
+            if (marriageNode) {
+                parentNode = marriageNode;
+            }
+        }
+
+        // Avoid overlap by spacing out horizontally if parent already has children
+        const existingChildEdges = edges.filter(e => e.source === parentNode.id);
+        const existingChildIds = existingChildEdges.map(e => e.target);
+        const existingChildren = nodes.filter(n => existingChildIds.includes(n.id));
+
+        let newX = parentNode.type === 'marriage' ? parentNode.position.x - 70 : parentNode.position.x;
+        if (existingChildren.length > 0) {
+            const maxX = Math.max(...existingChildren.map(n => n.position.x));
+            newX = maxX + 250;
+        }
+
+        const newNodeId = `n-${Date.now()}`;
+        const finalY = parentNode.position.y + 300;
+
         const newNode = {
             id: newNodeId,
             type: 'person',
-            position: { x: parentNode.position.x, y: parentNode.position.y + 200 },
+            position: { x: newX, y: finalY },
             data: { name: 'New Child', gender: 'male' },
         };
+
         const newEdge = {
-            id: `e-${connectToId}-${newNodeId}`,
-            source: connectToId,
+            id: `e-${parentNode.id}-${newNodeId}`,
+            source: parentNode.id,
             target: newNodeId,
+            sourceHandle: 'bottom',
+            targetHandle: 'top',
             type: 'smoothstep',
-            sourceHandle: sourceHandle,
-            targetHandle: 'top'
+            style: {
+                stroke: '#8b5cf6',
+                strokeWidth: 2,
+                filter: 'drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))'
+            }
         };
+
         setNodes((nds) => nds.concat(newNode));
         setEdges((eds) => eds.concat(newEdge));
+
     }, [nodes, edges, recordHistory]);
 
     const onAddSibling = useCallback((nodeId) => {
@@ -171,11 +177,14 @@ const TreeCanvas = () => {
         const node = nodes.find(n => n.id === nodeId);
         const parentEdge = edges.find(e => e.target === nodeId && e.targetHandle === 'top');
         const newNodeId = `node-${Date.now()}`;
+
+        const position = node ? { x: node.position.x + 250, y: node.position.y } : { x: 0, y: 0 };
+
         const newNode = {
             id: newNodeId,
             type: 'person',
-            position: { x: node.position.x + 200, y: node.position.y },
-            data: { name: 'New Sibling', gender: node.data.gender },
+            position: position,
+            data: { name: 'New Sibling', gender: node ? node.data.gender : 'male' },
         };
 
         setNodes((nds) => nds.concat(newNode));
@@ -187,7 +196,12 @@ const TreeCanvas = () => {
                 target: newNodeId,
                 type: 'smoothstep',
                 sourceHandle: parentEdge.sourceHandle,
-                targetHandle: 'top'
+                targetHandle: 'top',
+                style: {
+                    stroke: '#8b5cf6',
+                    strokeWidth: 2,
+                    filter: 'drop-shadow(0 1px 2px rgba(139, 92, 246, 0.5))'
+                }
             };
             setEdges((eds) => eds.concat(newEdge));
         }
@@ -195,25 +209,22 @@ const TreeCanvas = () => {
 
     const onAddSpouse = useCallback((nodeId) => {
         recordHistory();
-        const node = nodes.find(n => n.id === nodeId);
-        const newNodeId = `node-${Date.now()}`;
+        const node = nodes.find((n) => n.id === nodeId);
+        const isMale = node.data.gender === 'male';
+
+        const newNodeId = `n-${Date.now()}`;
         const spouseNode = {
             id: newNodeId,
             type: 'person',
-            position: { x: node.position.x + 350, y: node.position.y },
-            data: {
-                name: 'New Spouse',
-                gender: (node.data.gender || 'male') === 'male' ? 'female' : 'male'
-            },
+            position: { x: node.position.x + 400, y: node.position.y },
+            data: { name: 'New Spouse', gender: isMale ? 'female' : 'male' },
         };
 
-        // Create Marriage Node at handle height (exactly centered for 4px height)
-        // Centerline is roughly at 103. 4px height means y should be 103 - 2 = 101.
         const marriageNodeId = `m-${nodeId}-${newNodeId}`;
         const marriageNode = {
             id: marriageNodeId,
             type: 'marriage',
-            position: { x: node.position.x + 240, y: node.position.y + 101 }, // Shifted x slightly back for wider node
+            position: { x: node.position.x + 200, y: node.position.y + 30 },
             data: {},
         };
 
@@ -226,7 +237,7 @@ const TreeCanvas = () => {
                 targetHandle: 'left',
                 sourceHandle: 'right',
                 type: 'straight',
-                style: { stroke: '#ef4444', strokeWidth: 4 }
+                style: { stroke: '#ef4444', strokeWidth: 3 }
             },
             {
                 id: `e-${marriageNodeId}-${newNodeId}`,
@@ -235,20 +246,74 @@ const TreeCanvas = () => {
                 sourceHandle: 'right',
                 targetHandle: 'left',
                 type: 'straight',
-                style: { stroke: '#ef4444', strokeWidth: 4 }
+                style: { stroke: '#ef4444', strokeWidth: 3 }
             }
         ));
     }, [nodes, recordHistory]);
 
+    const loadFromBackend = useCallback(async () => {
+        try {
+            const data = await fetchTree();
+            if (data && data.nodes && data.nodes.length > 0) {
+                setNodes(data.nodes);
+                setEdges(data.edges);
+            } else {
+                setNodes(initialNodes);
+                setEdges(initialEdges);
+            }
+        } catch (error) {
+            console.error("Failed to load from backend, using initial data:", error);
+            setNodes(initialNodes);
+            setEdges(initialEdges);
+        }
+    }, [setNodes, setEdges]);
+
+    useEffect(() => {
+        loadFromBackend();
+    }, [loadFromBackend]);
+
+    const handleSaveToCloud = async () => {
+        setIsSaving(true);
+        try {
+            await saveTree({ nodes, edges });
+            alert('Tree saved to cloud successfully!');
+        } catch (error) {
+            console.error('Failed to save:', error);
+            alert('Failed to save to cloud check console.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleImportAI = useCallback((extractedPeople) => {
+        recordHistory();
+        const startY = nodes.length > 0 ? Math.max(...nodes.map(n => n.position.y)) + 350 : 0;
+        
+        const newNodes = extractedPeople.map((p, idx) => ({
+            id: `ai-${Date.now()}-${idx}`,
+            type: 'person',
+            position: { x: idx * 250, y: startY },
+            data: {
+                name: p.name,
+                gender: p.gender || 'male',
+                birthYear: p.birthYear || '',
+            }
+        }));
+
+        setNodes((nds) => nds.concat(newNodes));
+        setIsImportModalOpen(false);
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+    }, [nodes, recordHistory]);
+
     const onEdit = useCallback((id) => {
-        console.log('onEdit called for:', id);
         const node = nodes.find(n => n.id === id);
-        setEditingPerson({ ...node.data, id });
-        setIsEditModalOpen(true);
+        if (node) {
+            setEditingPerson({ ...node.data, id });
+            setIsEditModalOpen(true);
+        }
     }, [nodes]);
 
     const onPhotoUpload = useCallback((id, photoData) => {
-        console.log('onPhotoUpload received data for:', id);
         recordHistory();
         setNodes((nds) => nds.map((node) => node.id === id ? { ...node, data: { ...node.data, photo: photoData } } : node));
     }, [recordHistory]);
@@ -276,71 +341,174 @@ const TreeCanvas = () => {
         });
     };
 
-    const handleAIImport = (data) => {
-        recordHistory();
-        const newNodes = data.map((person, i) => ({
-            id: `ai-${i}-${Date.now()}`,
-            type: 'person',
-            position: { x: i * 250, y: 0 },
-            data: { ...person }
-        }));
-        setNodes(newNodes);
-        setEdges([]);
-        setIsImportOpen(false);
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        setTimeout(() => fitView({ duration: 800 }), 100);
-    };
-
-    const resetToInitial = (skipConfirm = false) => {
-        if (skipConfirm || window.confirm('Reset to the initial hand-drawn tree data? Current changes will be lost.')) {
-            // Restore structure/layout but KEEP user edits (photos/names)
-            const restoredNodes = initialNodes.map(initNode => {
-                const existingNode = nodes.find(n => n.id === initNode.id);
-                if (existingNode) {
-                    return { ...initNode, data: existingNode.data };
-                }
-                return initNode;
-            });
-
-            setNodes(restoredNodes);
-            setEdges(initialEdges);
+    const resetToSaved = useCallback(async (skipConfirm = false) => {
+        if (skipConfirm || window.confirm('Reload the last saved version from the cloud? Unsaved changes will be lost.')) {
+            await loadFromBackend();
             setHistory({ past: [], future: [] });
-            localStorage.removeItem('tf-nodes');
-            localStorage.removeItem('tf-edges');
-            // Don't reload, just update state
         }
-    };
+    }, [loadFromBackend]);
 
     const clearTree = () => {
         if (window.confirm('Clear all data?')) {
             recordHistory();
             setNodes([]);
             setEdges([]);
-            localStorage.removeItem('tf-nodes');
-            localStorage.removeItem('tf-edges');
         }
     };
 
+    const generations = useMemo(() => {
+        const personYSet = new Set();
+        nodes.forEach(n => {
+            if (n.type === 'person') {
+                personYSet.add(n.position.y);
+            }
+        });
+        const sortedY = Array.from(personYSet).sort((a, b) => a - b);
+        return sortedY.map((y, idx) => ({
+            gen: idx + 1,
+            y: y,
+        }));
+    }, [nodes]);
+
+    const handleSelectGen = useCallback((gen, genY) => {
+        setActiveGen(gen);
+        if (gen === null) {
+            if (rfInstance && typeof rfInstance.fitView === 'function') {
+                rfInstance.fitView({ duration: 800 });
+            } else if (typeof fitView === 'function') {
+                fitView({ duration: 800 });
+            }
+        } else {
+            const genNodes = nodes.filter(n => n.type === 'person' && n.position.y === genY);
+            if (genNodes.length > 0) {
+                const xs = genNodes.map(n => n.position.x);
+                const minX = Math.min(...xs);
+                const maxX = Math.max(...xs);
+                const bounds = {
+                    x: minX - 120,
+                    y: genY - 80,
+                    width: (maxX - minX) + 400,
+                    height: 450
+                };
+                if (rfInstance && typeof rfInstance.fitBounds === 'function') {
+                    rfInstance.fitBounds(bounds, { duration: 800, padding: 0.2 });
+                } else if (typeof fitBounds === 'function') {
+                    fitBounds(bounds, { duration: 800, padding: 0.2 });
+                }
+            }
+        }
+    }, [nodes, fitView, fitBounds, rfInstance]);
+
+    const selectedGenY = useMemo(() => {
+        if (activeGen === null) return null;
+        const g = generations.find(item => item.gen === activeGen);
+        return g ? g.y : null;
+    }, [activeGen, generations]);
+
     const nodesWithCallbacks = useMemo(() => {
-        return nodes.map(node => {
-            if (node.type === 'marriage') return node;
+        const nodeMap = new Map(nodes.map(n => [n.id, { ...n }]));
+
+        // 1. Guarantee marriage node Y aligns with person side handle at top: 40px (y = person.y + 30)
+        edges.forEach(e => {
+            const sourceNode = nodeMap.get(e.source);
+            const targetNode = nodeMap.get(e.target);
+            if (sourceNode && targetNode) {
+                if (sourceNode.type === 'person' && targetNode.type === 'marriage') {
+                    targetNode.position = {
+                        ...targetNode.position,
+                        y: sourceNode.position.y + 30
+                    };
+                } else if (sourceNode.type === 'marriage' && targetNode.type === 'person') {
+                    if (e.targetHandle === 'left' || e.targetHandle === 'right') {
+                        sourceNode.position = {
+                            ...sourceNode.position,
+                            y: targetNode.position.y + 30
+                        };
+                    }
+                }
+            }
+        });
+
+        // 2. Guarantee single child top handle aligns with marriage dot center (child.x = mCenterX - 80)
+        const marriageChildrenMap = new Map();
+        edges.forEach(e => {
+            if (e.sourceHandle === 'bottom') {
+                const parent = nodeMap.get(e.source);
+                const child = nodeMap.get(e.target);
+                if (parent && parent.type === 'marriage' && child && child.type === 'person') {
+                    if (!marriageChildrenMap.has(parent.id)) {
+                        marriageChildrenMap.set(parent.id, []);
+                    }
+                    marriageChildrenMap.get(parent.id).push(child);
+                }
+            }
+        });
+
+        marriageChildrenMap.forEach((children, mId) => {
+            const mNode = nodeMap.get(mId);
+            if (mNode && children.length === 1) {
+                const singleChild = children[0];
+                const mCenterX = mNode.position.x + 10;
+                singleChild.position = {
+                    ...singleChild.position,
+                    x: mCenterX - 80
+                };
+            }
+        });
+
+        return Array.from(nodeMap.values()).map(node => {
+            // Force Serena Sood name check if node is Gautam's daughter
+            let nodeData = { ...node.data };
+            if (node.id === 'sanaya_sood' || nodeData?.name === 'Sanaya Sood') {
+                nodeData.name = 'Serena Sood';
+            }
+
+            if (selectedGenY !== null) {
+                if (node.type === 'person') {
+                    nodeData.isHighlighted = node.position.y === selectedGenY;
+                    nodeData.isDimmed = node.position.y !== selectedGenY;
+                } else if (node.type === 'marriage') {
+                    nodeData.isHighlighted = (node.position.y - 30) === selectedGenY;
+                    nodeData.isDimmed = (node.position.y - 30) !== selectedGenY;
+                }
+            } else {
+                nodeData.isHighlighted = false;
+                nodeData.isDimmed = false;
+            }
+
+            if (node.type === 'marriage') {
+                return {
+                    ...node,
+                    data: {
+                        ...nodeData,
+                        onAddChild,
+                    }
+                };
+            }
             return {
                 ...node,
                 draggable: layoutMode === 'free',
                 data: {
-                    ...node.data,
+                    ...nodeData,
                     onAddChild,
                     onAddSibling,
                     onAddSpouse,
                     onEdit,
-                    onPhotoUpload
+                    onPhotoUpload,
+                    onDelete: deletePerson
                 }
             };
         });
-    }, [nodes, layoutMode, onAddChild, onAddSibling, onAddSpouse, onEdit, onPhotoUpload]);
+    }, [nodes, edges, layoutMode, selectedGenY, onAddChild, onAddSibling, onAddSpouse, onEdit, onPhotoUpload, deletePerson]);
 
     return (
         <div className="canvas-container">
+            <GenerationNavigator
+                generations={generations}
+                activeGen={activeGen}
+                onSelectGen={handleSelectGen}
+            />
+
             <ReactFlow
                 nodes={nodesWithCallbacks}
                 edges={edges}
@@ -349,6 +517,7 @@ const TreeCanvas = () => {
                 onConnect={onConnect}
                 onInit={setRfInstance}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 fitView
                 minZoom={0.05}
                 maxZoom={1.5}
@@ -366,7 +535,7 @@ const TreeCanvas = () => {
                     <div className="mode-toggle">
                         <button className={`mode-btn ${layoutMode === 'fixed' ? 'active' : ''}`} onClick={() => {
                             setLayoutMode('fixed');
-                            resetToInitial(true); // Auto-reset without confirm
+                            resetToSaved(true);
                         }}>Fixed</button>
                         <button className={`mode-btn ${layoutMode === 'free' ? 'active' : ''}`} onClick={() => {
                             setLayoutMode('free');
@@ -374,28 +543,25 @@ const TreeCanvas = () => {
                         }}>Free</button>
                     </div>
                     <div className="divider"></div>
-                    <button className="tool-btn ai" onClick={() => setIsImportOpen(true)}><Sparkles size={16} /> <span>AI Scan</span></button>
                     <button className="tool-btn" onClick={() => onAddChild('root')}><Plus size={16} /> <span>New</span></button>
-                    <button className="tool-btn" onClick={() => {
-                        const dataStr = JSON.stringify({ nodes, edges }, null, 2);
-                        const blob = new Blob([dataStr], { type: 'application/json' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'family-tree.json';
-                        a.click();
-                    }}><Layout size={16} /> <span>Save JSON</span></button>
+                    <button className="tool-btn ai" onClick={() => setIsImportModalOpen(true)} title="AI Scan Import"><Sparkles size={16} /> <span>AI Scan</span></button>
+                    <button className="tool-btn" onClick={handleSaveToCloud} disabled={isSaving} title="Save to Cloud">
+                        {isSaving ? <Loader2 size={16} className="animate-spin" /> : <CloudUpload size={16} />}
+                        <span>{isSaving ? 'Saving...' : 'Save'}</span>
+                    </button>
                     <button className="tool-btn" onClick={exportImage} title="Export Image"><Download size={16} /> <span>Export PNG</span></button>
                     <button className="tool-btn" onClick={() => window.print()} title="Print"><Printer size={16} /> <span>Print</span></button>
-                    <button className="tool-btn" onClick={() => resetToInitial()} title="Reset to Initial"><RotateCcw size={16} /> <span>Reset</span></button>
+                    <button className="tool-btn" onClick={() => resetToSaved()} title="Reload from Cloud"><RotateCcw size={16} /> <span>Reset</span></button>
                     <button className="tool-btn delete" onClick={clearTree} title="Clear All"><Trash2 size={16} /> <span>Clear</span></button>
+                    <div className="divider"></div>
+                    <button className="tool-btn" onClick={onLogout} title="Logout" style={{ color: '#ef4444', borderColor: '#fee2e2', background: '#fef2f2' }}><LogOut size={16} /> <span>Exit</span></button>
                 </div>
             </ReactFlow>
 
             {/* Title Overlay */}
             <div style={{
                 position: 'absolute',
-                top: 20,
+                top: 100,
                 left: '50%',
                 transform: 'translateX(-50%)',
                 zIndex: 10,
@@ -410,14 +576,18 @@ const TreeCanvas = () => {
                     style={{
                         background: 'transparent',
                         border: 'none',
-                        fontSize: 'clamp(24px, 5vw, 32px)', // Responsive font size
+                        fontSize: 'clamp(24px, 5vw, 40px)',
                         fontWeight: '900',
-                        color: '#1e293b',
                         textAlign: 'center',
                         width: '100%',
                         outline: 'none',
-                        textShadow: '0 2px 10px rgba(255,255,255,0.8)',
-                        pointerEvents: 'auto'
+                        pointerEvents: 'auto',
+                        backgroundImage: 'linear-gradient(to right, #2563eb, #db2777, #ea580c)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        color: 'transparent',
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
                     }}
                 />
             </div>
@@ -458,65 +628,17 @@ const TreeCanvas = () => {
                     }}
                 />
             )}
-            <ImportModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} onImport={handleAIImport} />
 
-            <style jsx>{`
-        .canvas-container { 
-          width: 100%; 
-          height: 100%; 
-          background: #f1f5f9;
-          background-image: 
-            radial-gradient(circle at 2px 2px, #cbd5e1 1px, transparent 0);
-          background-size: 24px 24px;
-        }
-        .canvas-toolbar { 
-          position: absolute; 
-          top: 20px; 
-          right: 20px; 
-          z-index: 100; 
-          padding: 8px; 
-          border-radius: 16px; 
-          display: flex; 
-          align-items: center; 
-          gap: 12px;
-          box-shadow: var(--shadow-xl);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          background: rgba(255, 255, 255, 0.95) !important;
-          backdrop-filter: blur(20px);
-          flex-wrap: wrap; /* Allow wrapping on small screens */
-          max-width: 90vw; /* Prevent overflow */
-          justify-content: flex-end;
-        }
-        .history-group { display: flex; gap: 4px; }
-        .icon-btn { padding: 8px; border: none; background: transparent; cursor: pointer; color: var(--text-muted); border-radius: 8px; display: flex; align-items: center; justify-content: center;}
-        .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .icon-btn:not(:disabled):hover { background: #f1f5f9; color: var(--primary); }
-        .divider { width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px; }
-        .mode-toggle { display: flex; background: #f1f5f9; padding: 3px; border-radius: 10px; }
-        .mode-toggle button { padding: 6px 14px; border: none; background: transparent; border-radius: 8px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; transition: all 0.2s; }
-        .mode-toggle button.active { background: white; color: var(--primary); box-shadow: var(--shadow-sm); }
-        .tool-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: none; background: white; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-main); border: 1px solid #e2e8f0; transition: all 0.2s; white-space: nowrap; }
-        .tool-btn:hover { background: #f8fafc; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-        .tool-btn.ai { background: var(--primary); color: white; border: none; }
-        .tool-btn.delete:hover { border-color: #fee2e2; color: #ef4444; background: #fef2f2; }
-        
-        @media (max-width: 768px) {
-            .canvas-toolbar {
-                top: auto;
-                bottom: 80px; /* Above signature */
-                right: 50%;
-                transform: translateX(50%);
-                width: 90%;
-                justify-content: center;
-                gap: 8px;
-            }
-            .tool-btn span { display: none; } /* Hide text on mobile */
-            .tool-btn { padding: 10px; }
-            .mode-toggle button { padding: 6px 10px; font-size: 12px; }
-        }
-      `}</style>
+            {isImportModalOpen && (
+                <ImportModal
+                    isOpen={isImportModalOpen}
+                    onClose={() => setIsImportModalOpen(false)}
+                    onImport={handleImportAI}
+                />
+            )}
         </div>
     );
 };
 
 export default TreeCanvas;
+

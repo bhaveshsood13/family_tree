@@ -1,8 +1,11 @@
 import json
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def fix_tree():
     # 1. Load tree_data.json
-    with open("tree_data.json", "r") as f:
+    with open(os.path.join(BASE_DIR, "tree_data.json"), "r") as f:
         data = json.load(f)
 
     nodes = data["nodes"]
@@ -87,7 +90,7 @@ def fix_tree():
                 sorted_c[2]["position"]["x"] = float(m_center_x - 80.0 + 250.0)
 
     # Write back to tree_data.json
-    with open("tree_data.json", "w") as f:
+    with open(os.path.join(BASE_DIR, "tree_data.json"), "w") as f:
         json.dump({"nodes": nodes, "edges": edges}, f, indent=2)
 
     # Write back to initialData.js
@@ -97,7 +100,7 @@ def fix_tree():
 export const initialNodes = {nodes_js};
 export const initialEdges = {edges_js};
 """
-    with open("../src/store/initialData.js", "w") as f:
+    with open(os.path.join(BASE_DIR, "../src/store/initialData.js"), "w") as f:
         f.write(js_content)
 
     print("Successfully re-aligned tree data and saved to tree_data.json and initialData.js!")

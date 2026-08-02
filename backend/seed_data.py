@@ -1,4 +1,7 @@
 import json
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # CONSTANTS FOR LAYOUT POSITIONING
 NODE_WIDTH = 160
@@ -728,7 +731,7 @@ edges.append(create_edge("m_upendra_namrata", "gaurav_ravi", "bottom", "top"))
 # ==========================================
 data = {"nodes": nodes, "edges": edges}
 
-with open("tree_data.json", "w") as f:
+with open(os.path.join(BASE_DIR, "tree_data.json"), "w") as f:
     json.dump(data, f, indent=2)
 
 js_content = f"""
@@ -737,7 +740,7 @@ export const initialNodes = {json.dumps(nodes, indent=4)};
 export const initialEdges = {json.dumps(edges, indent=4)};
 """
 
-with open("../src/store/initialData.js", "w") as f:
+with open(os.path.join(BASE_DIR, "../src/store/initialData.js"), "w") as f:
     f.write(js_content)
 
 person_count = len([n for n in nodes if n['type']=='person'])

@@ -61,7 +61,8 @@ class TreeData(BaseModel):
 
 # Global fallback flag
 USE_MONGO = True
-JSON_FILE = "tree_data.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_FILE = os.path.join(BASE_DIR, "tree_data.json")
 import json
 
 @app.on_event("startup")
@@ -112,7 +113,7 @@ async def save_tree(tree_data: TreeData):
     # 1. Save to MongoDB (Primary)
     if USE_MONGO:
         try:
-            doc = tree_data.dict()
+            doc = tree_data.model_dump()
             doc["_id"] = "main_tree"
             await collection.replace_one({"_id": "main_tree"}, doc, upsert=True)
             save_result["mode"] = "mongo"
@@ -123,7 +124,7 @@ async def save_tree(tree_data: TreeData):
     # 2. Save to JSON File (Backup/Sync)
     try:
         with open(JSON_FILE, "w") as f:
-            json.dump(tree_data.dict(), f, indent=2)
+            json.dump(tree_data.model_dump(), f, indent=2)
         if save_result["mode"] == "unknown":
              save_result["mode"] = "file"
     except Exception as e:
@@ -134,10 +135,10 @@ async def save_tree(tree_data: TreeData):
     # 3. Sync to Frontend Code (initialData.js) - Requested by User
     # This ensures "Seed Data" is updated so new reloads/clean starts reflect latest state
     try:
-        frontend_path = "../src/store/initialData.js"
+        frontend_path = os.path.join(BASE_DIR, "../src/store/initialData.js")
         # We need to construct valid JS exports
-        nodes_json = json.dumps([n.dict() for n in tree_data.nodes], indent=4)
-        edges_json = json.dumps([e.dict() for e in tree_data.edges], indent=4)
+        nodes_json = json.dumps([n.model_dump() for n in tree_data.nodes], indent=4)
+        edges_json = json.dumps([e.model_dump() for e in tree_data.edges], indent=4)
         
         js_content = f"""
 // Auto-updated by Backend Save

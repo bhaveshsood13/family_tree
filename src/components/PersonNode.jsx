@@ -141,18 +141,19 @@ const PersonNode = ({ id, data, selected }) => {
               if (window.confirm('Delete this person?')) data.onDelete(id);
             }}
             title="Delete Person"
+            aria-label="Delete Person"
           >
             <Trash2 size={16} />
           </button>
 
           {/* Bottom Actions: Sibling & Child */}
           <div className="node-actions glass-panel">
-            <button className="action-item sibling" onClick={(e) => { e.stopPropagation(); data.onAddSibling(id) }}>
+            <button className="action-item sibling" aria-label="Add Sibling" onClick={(e) => { e.stopPropagation(); data.onAddSibling(id) }}>
               <PlusSquare size={14} />
               <span>Sibling</span>
             </button>
             <div style={{ width: 1, height: 16, background: '#e2e8f0', margin: '0 4px' }} /> {/* Divider */}
-            <button className="action-item child" onClick={(e) => { e.stopPropagation(); data.onAddChild(id) }}>
+            <button className="action-item child" aria-label="Add Child" onClick={(e) => { e.stopPropagation(); data.onAddChild(id) }}>
               <Baby size={14} />
               <span>Child</span>
             </button>
@@ -164,6 +165,7 @@ const PersonNode = ({ id, data, selected }) => {
               className="action-item-spouse"
               onClick={(e) => { e.stopPropagation(); data.onAddSpouse(id) }}
               title="Add Spouse"
+              aria-label="Add Spouse"
             >
               <UserPlus size={16} />
             </button>

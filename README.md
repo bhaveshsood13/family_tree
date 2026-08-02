@@ -6,9 +6,10 @@ A modern, interactive, full-stack Family Tree application built with **React 19*
 
 ## 🖼️ Application Screenshots
 
-| Interactive Family Tree Canvas & Vertical Generation Elevator | Generation Elevator Navigator Detail |
-| :---: | :---: |
-| ![Family Tree Overview](docs/screenshots/family_tree_overview.jpg) | ![Generation Navigator Detail](docs/screenshots/generation_navigator_detail.jpg) |
+| Interactive Infinite Canvas & Generation Elevator | Glassmorphic Profile Edit Modal | Authentication Gatekeeper Login |
+| :---: | :---: | :---: |
+| ![Family Tree Canvas](screenshots/family_tree_canvas.png) | ![Person Profile Edit Modal](screenshots/edit_modal_view.png) | ![Login Screen](screenshots/login_screen.png) |
+
 
 ---
 

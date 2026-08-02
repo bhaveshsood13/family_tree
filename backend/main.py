@@ -132,26 +132,7 @@ async def save_tree(tree_data: TreeData):
         if save_result["mode"] == "unknown":
              raise HTTPException(status_code=500, detail=str(e))
 
-    # 3. Sync to Frontend Code (initialData.js) - Requested by User
-    # This ensures "Seed Data" is updated so new reloads/clean starts reflect latest state
-    try:
-        frontend_path = os.path.join(BASE_DIR, "../src/store/initialData.js")
-        # We need to construct valid JS exports
-        nodes_json = json.dumps([n.model_dump() for n in tree_data.nodes], indent=4)
-        edges_json = json.dumps([e.model_dump() for e in tree_data.edges], indent=4)
-        
-        js_content = f"""
-// Auto-updated by Backend Save
-export const initialNodes = {nodes_json};
-export const initialEdges = {edges_json};
-"""
-        with open(frontend_path, "w") as f:
-            f.write(js_content)
-        print("Synced changes to src/store/initialData.js")
-    except Exception as e:
-        print(f"Failed to sync to initialData.js: {e}")
-        # Not critical enough to fail the request
-        
+    # Removed sync to initialData.js as requested
     return save_result
 
 @app.get("/")

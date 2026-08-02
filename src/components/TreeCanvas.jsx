@@ -45,7 +45,7 @@ const TreeCanvas = ({ onLogout }) => {
     const [layoutMode, setLayoutMode] = useState('free');
     const [editingPerson, setEditingPerson] = useState(null);
     const [activeGen, setActiveGen] = useState(null);
-    const [isSaving, setIsSaving] = useState(false);
+    const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'success', 'error'
     const { fitView, fitBounds } = useReactFlow();
 
     const recordHistory = useCallback(() => {
@@ -93,7 +93,7 @@ const TreeCanvas = ({ onLogout }) => {
             setEdges([...layoutedEdges]);
             setTimeout(() => fitView({ duration: 800 }), 50);
         }
-    }, [nodes, recordHistory]);
+    }, [layoutMode, nodes, edges, setNodes, setEdges, fitView]);
 
     const onAddChild = useCallback((parentId) => {
         recordHistory();
@@ -170,7 +170,7 @@ const TreeCanvas = ({ onLogout }) => {
         setNodes((nds) => nds.concat(newNode));
         setEdges((eds) => eds.concat(newEdge));
 
-    }, [nodes, edges, recordHistory]);
+    }, [nodes, edges, recordHistory, setNodes, setEdges]);
 
     const onAddSibling = useCallback((nodeId) => {
         recordHistory();
@@ -205,7 +205,7 @@ const TreeCanvas = ({ onLogout }) => {
             };
             setEdges((eds) => eds.concat(newEdge));
         }
-    }, [nodes, edges, recordHistory]);
+    }, [nodes, edges, recordHistory, setNodes, setEdges]);
 
     const onAddSpouse = useCallback((nodeId) => {
         recordHistory();
@@ -229,7 +229,8 @@ const TreeCanvas = ({ onLogout }) => {
         };
 
         setNodes((nds) => nds.concat(spouseNode, marriageNode));
-        setEdges((eds) => eds.concat(
+        setEdges((prev) => [
+            ...prev,
             {
                 id: `e-${nodeId}-${marriageNodeId}`,
                 source: nodeId,
@@ -248,8 +249,8 @@ const TreeCanvas = ({ onLogout }) => {
                 type: 'straight',
                 style: { stroke: '#ef4444', strokeWidth: 3 }
             }
-        ));
-    }, [nodes, recordHistory]);
+        ]);
+    }, [nodes, recordHistory, setNodes, setEdges]);
 
     const loadFromBackend = useCallback(async () => {
         try {
@@ -273,15 +274,17 @@ const TreeCanvas = ({ onLogout }) => {
     }, [loadFromBackend]);
 
     const handleSaveToCloud = async () => {
-        setIsSaving(true);
+        setSaveStatus('saving');
         try {
             await saveTree({ nodes, edges });
-            alert('Tree saved to cloud successfully!');
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+            setSaveStatus('success');
+            setTimeout(() => setSaveStatus('idle'), 2000);
         } catch (error) {
             console.error('Failed to save:', error);
-            alert('Failed to save to cloud check console.');
-        } finally {
-            setIsSaving(false);
+            alert(`Failed to save to cloud: ${error.message || 'Unknown error'}`);
+            setSaveStatus('error');
+            setTimeout(() => setSaveStatus('idle'), 3000);
         }
     };
 
@@ -303,7 +306,7 @@ const TreeCanvas = ({ onLogout }) => {
         setNodes((nds) => nds.concat(newNodes));
         setIsImportModalOpen(false);
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-    }, [nodes, recordHistory]);
+    }, [nodes, recordHistory, setNodes]);
 
     const onEdit = useCallback((id) => {
         const node = nodes.find(n => n.id === id);
@@ -316,20 +319,20 @@ const TreeCanvas = ({ onLogout }) => {
     const onPhotoUpload = useCallback((id, photoData) => {
         recordHistory();
         setNodes((nds) => nds.map((node) => node.id === id ? { ...node, data: { ...node.data, photo: photoData } } : node));
-    }, [recordHistory]);
+    }, [recordHistory, setNodes]);
 
     const savePerson = useCallback((updatedData) => {
         recordHistory();
         setNodes((nds) => nds.map((node) => node.id === updatedData.id ? { ...node, data: { ...node.data, ...updatedData } } : node));
         setEditingPerson(null);
-    }, [recordHistory]);
+    }, [recordHistory, setNodes]);
 
     const deletePerson = useCallback((id) => {
         recordHistory();
         setNodes((nds) => nds.filter(n => n.id !== id));
         setEdges((eds) => eds.filter(e => e.source !== id && e.target !== id));
         setEditingPerson(null);
-    }, [recordHistory]);
+    }, [recordHistory, setNodes, setEdges]);
 
     const exportImage = () => {
         const element = document.querySelector('.react-flow__viewport');
@@ -406,7 +409,7 @@ const TreeCanvas = ({ onLogout }) => {
     }, [activeGen, generations]);
 
     const nodesWithCallbacks = useMemo(() => {
-        const nodeMap = new Map(nodes.map(n => [n.id, { ...n }]));
+        const nodeMap = new Map(nodes.map(n => [n.id, structuredClone(n)]));
 
         // 1. Guarantee marriage node Y aligns with person side handle at top: 40px (y = person.y + 30)
         edges.forEach(e => {
@@ -457,47 +460,31 @@ const TreeCanvas = ({ onLogout }) => {
         });
 
         return Array.from(nodeMap.values()).map(node => {
-            // Force Serena Sood name check if node is Gautam's daughter
-            let nodeData = { ...node.data };
-            if (node.id === 'sanaya_sood' || nodeData?.name === 'Sanaya Sood') {
-                nodeData.name = 'Serena Sood';
-            }
-
             if (selectedGenY !== null) {
                 if (node.type === 'person') {
-                    nodeData.isHighlighted = node.position.y === selectedGenY;
-                    nodeData.isDimmed = node.position.y !== selectedGenY;
+                    node.data.isHighlighted = node.position.y === selectedGenY;
+                    node.data.isDimmed = node.position.y !== selectedGenY;
                 } else if (node.type === 'marriage') {
-                    nodeData.isHighlighted = (node.position.y - 30) === selectedGenY;
-                    nodeData.isDimmed = (node.position.y - 30) !== selectedGenY;
+                    node.data.isHighlighted = (node.position.y - 30) === selectedGenY;
+                    node.data.isDimmed = (node.position.y - 30) !== selectedGenY;
                 }
             } else {
-                nodeData.isHighlighted = false;
-                nodeData.isDimmed = false;
+                node.data.isHighlighted = false;
+                node.data.isDimmed = false;
             }
 
             if (node.type === 'marriage') {
-                return {
-                    ...node,
-                    data: {
-                        ...nodeData,
-                        onAddChild,
-                    }
-                };
+                node.data.onAddChild = onAddChild;
+            } else {
+                node.draggable = layoutMode === 'free';
+                node.data.onAddChild = onAddChild;
+                node.data.onAddSibling = onAddSibling;
+                node.data.onAddSpouse = onAddSpouse;
+                node.data.onEdit = onEdit;
+                node.data.onPhotoUpload = onPhotoUpload;
+                node.data.onDelete = deletePerson;
             }
-            return {
-                ...node,
-                draggable: layoutMode === 'free',
-                data: {
-                    ...nodeData,
-                    onAddChild,
-                    onAddSibling,
-                    onAddSpouse,
-                    onEdit,
-                    onPhotoUpload,
-                    onDelete: deletePerson
-                }
-            };
+            return node;
         });
     }, [nodes, edges, layoutMode, selectedGenY, onAddChild, onAddSibling, onAddSpouse, onEdit, onPhotoUpload, deletePerson]);
 
@@ -545,9 +532,11 @@ const TreeCanvas = ({ onLogout }) => {
                     <div className="divider"></div>
                     <button className="tool-btn" onClick={() => onAddChild('root')}><Plus size={16} /> <span>New</span></button>
                     <button className="tool-btn ai" onClick={() => setIsImportModalOpen(true)} title="AI Scan Import"><Sparkles size={16} /> <span>AI Scan</span></button>
-                    <button className="tool-btn" onClick={handleSaveToCloud} disabled={isSaving} title="Save to Cloud">
-                        {isSaving ? <Loader2 size={16} className="animate-spin" /> : <CloudUpload size={16} />}
-                        <span>{isSaving ? 'Saving...' : 'Save'}</span>
+                    <button className="tool-btn" onClick={handleSaveToCloud} disabled={saveStatus === 'saving'} title="Save to Cloud">
+                        {saveStatus === 'saving' ? <Loader2 size={16} className="animate-spin" /> : 
+                         saveStatus === 'success' ? <CloudUpload size={16} style={{ color: 'green' }} /> :
+                         <CloudUpload size={16} />}
+                        <span>{saveStatus === 'saving' ? 'Saving...' : saveStatus === 'success' ? 'Saved' : saveStatus === 'error' ? 'Error' : 'Save'}</span>
                     </button>
                     <button className="tool-btn" onClick={exportImage} title="Export Image"><Download size={16} /> <span>Export PNG</span></button>
                     <button className="tool-btn" onClick={() => window.print()} title="Print"><Printer size={16} /> <span>Print</span></button>
